@@ -1,0 +1,102 @@
+service: mypay-test-job
+
+plugins:
+    - serverless-bundle
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    environment:
+        TEST_TOPIC_ARN: ${file(../../resources/stack-outputs/sns-${self:custom.infraStage}.yml):TestTopicArn}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - sns:Publish
+          Resource: ${file(../../resources/stack-outputs/sns-${self:custom.infraStage}.yml):TestTopicArn}
+        - Effect: Allow
+          Action:
+              - sqs:SendMessage
+          Resource: ${file(../../resources/stack-outputs/sqs-${self:custom.infraStage}.yml):TestQueueFifoArn}
+        - Effect: Allow
+          Action:
+              - sqs:SendMessage
+          Resource: ${file(../../resources/stack-outputs/sqs-${self:custom.infraStage}.yml):TestQueueStandartArn}
+
+package:
+  artifact: ${opt:artifact, ""}
+
+custom:
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+
+functions:
+    #SNS#
+    Publisher:
+        handler: sns/publisher.main
+        events:
+            - http:
+                  path: publish
+                  method: post
+    ReadFromDLQ:
+        handler: sns/readDLQ.main
+        events:
+            - sqs:
+                  batchSize: 1
+                  arn: ${file(../../resources/stack-outputs/sns-${self:custom.infraStage}.yml):TestDLQArn}
+    Subscriber:
+        handler: sns/subscriber.main
+        events:
+            - sns:
+                  arn: ${file(../../resources/stack-outputs/sns-${self:custom.infraStage}.yml):TestTopicArn}
+                  redrivePolicy:
+                      deadLetterTargetImport:
+                          arn: TestDLQArn-${self:custom.infraStage}
+                          url: TestDLQUrl-${self:custom.infraStage}
+    #SQS#
+    SQSSender:
+        handler: sqs/sqs-sender.main
+        events:
+            - http:
+                  path: send/standart
+                  method: post
+        environment:
+            TEST_QUEUE_URL: ${file(../../resources/stack-outputs/sqs-${self:custom.infraStage}.yml):TestQueueStandartUrl}
+    SQSConsumer:
+        handler: sqs/sqs-consumer.main
+        reservedConcurrency: 10 # Concurrency control
+        events:
+            - sqs:
+                  arn: ${file(../../resources/stack-outputs/sqs-${self:custom.infraStage}.yml):TestQueueStandartArn}
+                  batchSize: 1 # default 10 and maximum 10
+
+    SQSSenderFifo:
+        handler: sqs/sqs-sender-fifo.main
+        events:
+            - http:
+                  path: send/fifo
+                  method: post
+        environment:
+            TEST_QUEUE_URL: ${file(../../resources/stack-outputs/sqs-${self:custom.infraStage}.yml):TestQueueFifoUrl}
+    SQSConsumerFifo:
+        handler: sqs/sqs-consumer-fifo.main
+        reservedConcurrency: 10 # Concurrency control
+        events:
+            - sqs:
+                  arn: ${file(../../resources/stack-outputs/sqs-${self:custom.infraStage}.yml):TestQueueFifoArn}
+                  batchSize: 1 # default 10 and maximum 10
+    #DLQ
+    SQSStandartDLQ:
+        handler: sns/readDLQ.main
+        events:
+            - sqs:
+                  arn: ${file(../../resources/stack-outputs/sqs-${self:custom.infraStage}.yml):TestQueueStandartDLQArn}
+                  batchSize: 1
+    SQSFifoDLQ:
+        handler: sns/readDLQ.main
+        events:
+            - sqs:
+                  arn: ${file(../../resources/stack-outputs/sqs-${self:custom.infraStage}.yml):TestQueueFifoDLQArn}
+                  batchSize: 1

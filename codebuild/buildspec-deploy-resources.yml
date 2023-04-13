@@ -1,0 +1,69 @@
+version: 0.2
+
+phases:
+    install:
+        runtime-versions:
+            nodejs: 12
+        commands:
+            - npm install -g serverless@1.61.2
+    build:
+        commands:
+            - mkdir target
+            - aws s3 cp ${S3_BUCKET}/${SERVICE_NAME_PATH} ./target
+            - cd ./target
+            - unzip ${PACKAGE_NAME}.zip -d package
+            - cd ./package
+            - |-
+                if [ -z "$STAGE" ];then
+                    serverless deploy -v > output.txt
+                else
+                   serverless deploy --stage=${STAGE} -v > output.txt
+                fi
+            - cat output.txt
+            - echo "     "
+            - |
+                if [[ "${PACKAGE_NAME}" == "cognito" ]]
+                then
+                    CognitoUserPoolClientId=`grep 'CognitoUserPoolClientId:' output.txt | sed 's/^.\{25\}//' | tr -d '[:space:]'`
+                    echo $CognitoUserPoolClientId
+                    aws ssm delete-parameter --name /cp/${STAGE}/cp/CognitoUserPoolClientId --region=${REGION}
+                    aws ssm put-parameter --name /cp/${STAGE}/cp/CognitoUserPoolClientId --value "$CognitoUserPoolClientId" --type String --region ${REGION}
+                    
+                    CognitoUserPoolId=`grep 'CognitoUserPoolId:' output.txt | sed 's/^.\{19\}//' | tr -d '[:space:]'`
+                    echo $CognitoUserPoolId
+                    aws ssm delete-parameter --name /cp/${STAGE}/cp/CognitoUserPoolId --region=${REGION}
+                    aws ssm put-parameter --name /cp/${STAGE}/cp/CognitoUserPoolId --value "$CognitoUserPoolId" --type String --region ${REGION}
+                    
+                    CognitoUserPoolArn=`grep 'CognitoUserPoolArn:' output.txt | sed 's/^.\{20\}//' | tr -d '[:space:]'`
+                    echo $CognitoUserPoolArn
+                    aws ssm delete-parameter --name /cp/${STAGE}/cp/CognitoUserPoolArn --region=${REGION}
+                    aws ssm put-parameter --name /cp/${STAGE}/cp/CognitoUserPoolArn --value "$CognitoUserPoolArn" --type String --region ${REGION}
+                fi
+
+            - |
+                if [[ "${PACKAGE_NAME}" == "database" ]]
+                then
+                    DbClusterArn=`grep 'DbClusterArn:' output.txt | sed 's/^.\{14\}//' | tr -d '[:space:]'`
+                    echo $DbClusterArn
+                    aws ssm delete-parameter --name /cp/${STAGE}/cp/DbClusterArn --region=${REGION}
+                    aws ssm put-parameter --name /cp/${STAGE}/cp/DbClusterArn --value "$DbClusterArn" --type String --region ${REGION}
+                    
+                    SecretManagerArn=`grep 'SecretManagerArn:' output.txt | sed 's/^.\{17\}//' | tr -d '[:space:]'`
+                    echo $SecretManagerArn
+                    aws ssm delete-parameter --name /cp/${STAGE}/cp/SecretManagerArn --region=${REGION}
+                    aws ssm put-parameter --name /cp/${STAGE}/cp/SecretManagerArn --value "$SecretManagerArn" --type String --region ${REGION}
+                fi
+
+            - |
+                if [[ "${PACKAGE_NAME}" == "s3" ]]
+                then
+                    BucketUpload=`grep 'BucketUpload:' output.txt | sed 's/^.\{13\}//' | tr -d '[:space:]'`
+                    echo $BucketUpload
+                    aws ssm delete-parameter --name /cp/${STAGE}/cp/BucketUpload --region=${REGION}
+                    aws ssm put-parameter --name /cp/${STAGE}/cp/BucketUpload --value "$BucketUpload" --type String --region ${REGION}
+                    
+                    CPDocsBucket=`grep 'CPDocsBucket:' output.txt | sed 's/^.\{13\}//' | tr -d '[:space:]'`
+                    echo $CPDocsBucket
+                    aws ssm delete-parameter --name /cp/${STAGE}/cp/CPDocsBucket --region=${REGION}
+                    aws ssm put-parameter --name /cp/${STAGE}/cp/CPDocsBucket --value "$CPDocsBucket" --type String --region ${REGION}
+                fi

@@ -1,0 +1,107 @@
+service: mypay-adyen
+
+plugins:
+    - serverless-bundle
+    - serverless-plugin-tracing
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    timeout: 30
+    tracing:
+        apiGateway: true
+        lambda: true
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        COGNITO_CLIENT_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolClientId}
+        INFRA_STAGE: ${self:custom.stage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        ADYEN_API_URL: ${ssm:/cp/${self:custom.infraStage}/cp/AdyenApiURL}
+        ADYEN_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/AdyenApiKey}
+        ACCESS_KEY_ID: ${ssm:/cp/${self:custom.infraStage}/cp/accessKey}
+        SECRET_ACCESS_KEY: ${ssm:/aws/reference/secretsmanager//cp/${self:custom.infraStage}/cp/secretAccessKey~true}
+        BUCKET_NAME: ${ssm:/cp/${self:custom.stage}/cp/BucketUpload}
+        CRYPTO_SECRETE: ${ssm:/cp/${self:custom.stage}/cp/CryptoSecrete}
+        FOOD_HUB_WEB_HOOK_URL: ${ssm:/cp/${self:custom.stage}/cp/FoodHubWebHookUrl}
+        FOOD_HUB_WEB_HOOK_API_KEY: ${ssm:/cp/${self:custom.stage}/cp/FoodHubWebHookAPIKey}
+        T2S_API_KEY: ${ssm:/cp/${self:custom.stage}/cp/T2sAPIKey}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: 'Allow' # xray permissions
+          Action:
+              - xray:PutTraceSegments
+              - xray:PutTelemetryRecords
+          Resource:
+              - '*'
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:*
+              - events:*
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - s3:*
+          Resource:
+              - Fn::Join:
+                    - ''
+                    - - 'Fn::ImportValue': ${self:custom.infraStage}-BucketUploadArn
+                      - /*
+              - Fn::Join:
+                    - ''
+                    - - 'Fn::ImportValue': ${self:custom.infraStage}-CPDocsBucketArn
+                      - /*
+
+package:
+    artifact: ${opt:artifact, ""}
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+    webClientUrls:
+        dev: https://development.d128x12laj1rvv.amplifyapp.com
+        qa: https://qa.d128x12laj1rvv.amplifyapp.com
+        qaautomation: https://qaautomation.d128x12laj1rvv.amplifyapp.com
+        release: https://release.d128x12laj1rvv.amplifyapp.com
+    webClientUrl: ${self:custom.webClientUrls.${self:custom.infraStage}, self:custom.webClientUrls.dev}
+    adyenEntityPath: ${self:custom.baseApiPath}/adyen
+
+    bundle:
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+            # only on aws
+            - ../../layers/helper_lib/src
+            - ../../../layers/helper_lib/src
+            - ../../../layers/models_lib/src
+            - ../../../../layers/helper_lib/src
+            - ../../../../layers/models_lib/src
+functions:
+    - ${file(functions.yml)}
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

@@ -1,0 +1,60 @@
+AddUserIdToCognitoToken:
+    handler: functions/addUserMyPayIdToCognitoToken-handler.addUserMyPayIdToCognitoToken
+    events:
+        - cognitoUserPool:
+              pool: ${self:custom.infraStage}-user-pool
+              trigger: PreTokenGeneration
+              existing: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+CustomMessage:
+    handler: functions/custom-message-handler.customizeMessage
+    events:
+        - cognitoUserPool:
+              pool: ${self:custom.infraStage}-user-pool
+              trigger: CustomMessage
+              existing: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+EventPreAuth:
+    handler: functions/pre-auth-event-handler.preAuthEvent
+    events:
+        - cognitoUserPool:
+              pool: ${self:custom.infraStage}-user-pool
+              trigger: PreSignUp
+              existing: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+CreateAuthChallenge:
+    handler: functions/create-auth-challenge.handler
+    events:
+        - cognitoUserPool:
+              pool: ${self:custom.infraStage}-user-pool
+              trigger: CreateAuthChallenge
+              existing: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+DefineAuthChallenge:
+    handler: functions/define-auth-challenge.handler
+    events:
+        - cognitoUserPool:
+              pool: ${self:custom.infraStage}-user-pool
+              trigger: DefineAuthChallenge
+              existing: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+VerifyAuthChallenge:
+    handler: functions/verify-auth-challenge.handler
+    events:
+        - cognitoUserPool:
+              pool: ${self:custom.infraStage}-user-pool
+              trigger: VerifyAuthChallengeResponse
+              existing: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

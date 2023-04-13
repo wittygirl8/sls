@@ -1,0 +1,7 @@
+export const UpdateBankDetailsAccountStatus = {
+    WAITING_APPROVAL: 'WAITING_APPROVAL',
+    APPROVED: 'APPROVED',
+    REJECTED: 'REJECTED',
+    DELETED: 'DELETED',
+    OVERRIDDEN: 'OVERRIDDEN'
+};

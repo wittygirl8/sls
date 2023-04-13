@@ -1,0 +1,163 @@
+Signup:
+    handler: functions/signup-handler.signUp
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/signup
+              method: post
+              cors: true
+              request:
+                  schema:
+                      application/json: ${file(validators/signup-validator.json)}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+Login:
+    handler: functions/login-handler.login
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/login
+              method: post
+              cors: true
+              request:
+                  schema:
+                      application/json: ${file(validators/login-validator.json)}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ChangePassword:
+    handler: functions/changePassword-handler.changePassword
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/changePassword
+              method: post
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AdminSendResetPasswordLink:
+    handler: functions/admin/send-reset-password-link-handler.adminSendResetPasswordLink
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/admin/send-reset-password-link
+              method: post
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+CompleteInvite:
+    handler: functions/complete-invite-signup-handler.completeInvite
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/completeInvite
+              method: post
+              cors: true
+              request:
+                  schema:
+                      application/json: ${file(validators/complete-invite-validator.json)}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetRefreshToken:
+    handler: functions/refresh-token/get-refresh-token-handler.getRefreshToken
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/get-refresh-token
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+SaveRefreshToken:
+    handler: functions/refresh-token/save-refresh-token-handler.saveRefreshToken
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/save-refresh-token
+              method: post
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+DeleteRefreshToken:
+    handler: functions/refresh-token/delete-refresh-token-handler.deleteRefreshToken
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/delete-refresh-token
+              method: delete
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ConfirmEmail:
+    handler: functions/emails/confirm-email-handler.confirmEmail
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/confirm-email
+              method: get
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          code: true
+                          username: true
+                          clientId: true
+                          region: true
+                          email: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+NewAccountSocial:
+    handler: functions/social/new-social-account.handler
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/new-social-account
+              method: post
+              cors: true
+              request:
+                  schema:
+                      application/json: ${file(validators/new-social-account.json)}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+RemoveCognitoUser:
+    handler: functions/social/remove-cognito-user.handler
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/remove-cognito-user/{sub}
+              method: delete
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          sub: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+CreateNewAuthOtp:
+    handler: functions/otp/create-new-auth-otp-handler.handler
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/create-new-auth-otp
+              method: post
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+SendVerificationEmail:
+    handler: functions/emails/send-verification-email-handler.sendVerificationEmail
+    events:
+        - http:
+              path: ${self:custom.authEntityPath}/send-verification-email
+              method: post
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

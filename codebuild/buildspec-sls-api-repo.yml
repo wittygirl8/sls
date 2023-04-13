@@ -1,0 +1,127 @@
+version: 0.2
+
+env:
+    variables:
+        RESOURCE_DB: 'backend/resources/database'
+        RESOURCE_COGNITO: 'backend/resources/cognito'
+        RESOURCE_S3: 'backend/resources/s3'
+        RESOURCE_SQS: 'backend/resources/sqs'
+
+        LAYERS: 'backend/layers'
+
+        SERVICE_AUTH: 'backend/services/auth'
+        SERVICE_CUSTOMERS: 'backend/services/customers'
+        SERVICE_USERS: 'backend/services/users'
+        SERVICE_MIGRATIONS: 'backend/services/migrations'
+        SERVICE_MERCHANTS: 'backend/services/merchants'
+        SERVICE_DOCUMENTS: 'backend/services/documents'
+        SERVICE_TRANSACTIONS: 'backend/services/transactions'
+        SERVICE_PAYMENTS: 'backend/services/payments'
+        SERVICE_VT: 'backend/services/virtual_terminal'
+        SERVICE_SETTINGS: 'backend/services/settings'
+        SERVICE_AUTH_COGNITO: 'backend/services/auth-cognito'
+        SERVICE_NOTIFICATIONS: 'backend/services/notifications'
+        SERVICE_ADMIN_MERCHANT: 'backend/services/admin-merchants'
+        SERVICE_TAXONOMIES: 'backend/services/taxonomies'
+        SERVICE_ADYEN: 'backend/services/adyen'
+        SERVICE_RESELLER: 'backend/services/reseller'
+        SERVICE_BIFROST: 'backend/services/bifrost'
+        SERVICE_DNA: 'backend/services/dna'
+        SERVICE_PUSH_NOTIFICATION: 'backend/services/push-notifications'
+
+        # SERVICE_OBN: 'backend/services/obn'
+        # SERVICE_DNA: 'backend/services/dna'
+
+phases:
+    install:
+        runtime-versions:
+            nodejs: 12
+        commands:
+            - npm install -g serverless@1.61.2
+
+            - cd backend && npm ci && cd -
+            - cd ${SERVICE_AUTH} && npm ci && cd -
+            - cd ${SERVICE_CUSTOMERS} && npm ci && cd -
+            - cd ${SERVICE_USERS} && npm ci && cd -
+            - cd ${SERVICE_MERCHANTS} && npm ci && cd -
+            - cd ${SERVICE_DOCUMENTS} && npm ci && cd -
+            - cd ${SERVICE_TRANSACTIONS} && npm ci && cd -
+            - cd ${SERVICE_PAYMENTS} && npm ci && cd -
+            - cd ${SERVICE_VT} && npm ci && cd -
+            - cd ${SERVICE_SETTINGS} && npm ci && cd -
+            - cd ${SERVICE_AUTH_COGNITO} && npm ci && cd -
+            - cd ${SERVICE_NOTIFICATIONS} && npm ci && cd -
+            - cd ${SERVICE_ADMIN_MERCHANT} && npm ci && cd -
+            - cd ${SERVICE_TAXONOMIES} && npm ci && cd -
+            - cd ${SERVICE_ADYEN} && npm ci && cd -
+            - cd ${SERVICE_RESELLER} && npm ci && cd -
+            - cd ${SERVICE_BIFROST} && npm ci && cd -
+            - cd ${SERVICE_DNA} && npm ci && cd -
+
+            - cd ${SERVICE_PUSH_NOTIFICATION} && npm ci && cd -
+            #- cd ${SERVICE_OBN} && npm ci && cd -
+            #- cd ${SERVICE_DNA} && npm ci && cd -
+
+        finally:
+            - echo Installation finished
+    pre_build:
+        commands:
+    build:
+        commands:
+            #     # DB
+            - sh codebuild/script_resources.sh ${RESOURCE_DB} ${S3_BUCKET} ${INFRA_STAGE}
+            #     # Cognito
+            - sh codebuild/script_resources.sh ${RESOURCE_COGNITO} ${S3_BUCKET} ${INFRA_STAGE}
+            #     # S3
+            - sh codebuild/script_resources.sh ${RESOURCE_S3} ${S3_BUCKET} ${INFRA_STAGE}
+            #     #SQS
+            - sh codebuild/script_resources.sh ${RESOURCE_SQS} ${S3_BUCKET} ${INFRA_STAGE}
+
+            #     # Layers
+            - sh codebuild/script_layers.sh ${LAYERS} ${S3_BUCKET} ${INFRA_STAGE}
+
+            # #     # Auth
+            - sh codebuild/script_services.sh ${SERVICE_AUTH} mypay-auth ${S3_BUCKET} ${INFRA_STAGE}
+              # Customers
+            - sh codebuild/script_services.sh ${SERVICE_CUSTOMERS} mypay-customers ${S3_BUCKET} ${INFRA_STAGE}
+            #     # Users
+            - sh codebuild/script_services.sh ${SERVICE_USERS} mypay-users ${S3_BUCKET} ${INFRA_STAGE}
+            #     # Merchants
+            - sh codebuild/script_services.sh ${SERVICE_MERCHANTS} mypay-merchants ${S3_BUCKET} ${INFRA_STAGE}
+            #     # Documents
+            - sh codebuild/script_services.sh ${SERVICE_DOCUMENTS} mypay-documents ${S3_BUCKET} ${INFRA_STAGE}
+            #     # Transactions
+            - sh codebuild/script_services.sh ${SERVICE_TRANSACTIONS} mypay-transactions ${S3_BUCKET} ${INFRA_STAGE}
+            # Payments
+            - sh codebuild/script_services.sh ${SERVICE_PAYMENTS} mypay-payments ${S3_BUCKET} ${INFRA_STAGE}
+            # Virtual terminals
+            - sh codebuild/script_services.sh ${SERVICE_VT} mypay-vt ${S3_BUCKET} ${INFRA_STAGE}
+            # Settings
+            - sh codebuild/script_services.sh ${SERVICE_SETTINGS} mypay-settings ${S3_BUCKET} ${INFRA_STAGE}
+              # Auth Cognito
+            - sh codebuild/script_services.sh ${SERVICE_AUTH_COGNITO} mypay-auth-cognito ${S3_BUCKET} ${INFRA_STAGE}
+            # Documents
+            - sh codebuild/script_migrations.sh ${SERVICE_MIGRATIONS} ${S3_BUCKET} ${INFRA_STAGE}
+            # Notifications
+            - sh codebuild/script_services.sh ${SERVICE_NOTIFICATIONS} mypay-notifications ${S3_BUCKET} ${INFRA_STAGE}
+            # Admin merchant
+            - sh codebuild/script_services.sh ${SERVICE_ADMIN_MERCHANT} mypay-admin-merchants ${S3_BUCKET} ${INFRA_STAGE}
+            # Taxonomies
+            - sh codebuild/script_services.sh ${SERVICE_TAXONOMIES} mypay-taxonomies ${S3_BUCKET} ${INFRA_STAGE}
+            # Obn
+            #- sh codebuild/script_services.sh ${SERVICE_OBN} mypay-obn ${S3_BUCKET} ${INFRA_STAGE}
+            # Dna
+            #- sh codebuild/script_services.sh ${SERVICE_DNA} mypay-dna ${S3_BUCKET} ${INFRA_STAGE}
+            # Adyen
+            - sh codebuild/script_services.sh ${SERVICE_ADYEN} mypay-adyen ${S3_BUCKET} ${INFRA_STAGE}
+            # Reseller
+            - sh codebuild/script_services.sh ${SERVICE_RESELLER} mypay-reseller  ${S3_BUCKET} ${INFRA_STAGE}
+            # Bifrost
+            - sh codebuild/script_services.sh ${SERVICE_BIFROST} mypay-bifrost ${S3_BUCKET} ${INFRA_STAGE}
+            # Dna
+            - sh codebuild/script_services.sh ${SERVICE_DNA} mypay-dna ${S3_BUCKET} ${INFRA_STAGE}
+            # PushNotifications
+            - sh codebuild/script_services.sh ${SERVICE_PUSH_NOTIFICATION} mypay-push-notifications ${S3_BUCKET} ${INFRA_STAGE}
+
+        finally:
+            - echo Build finished

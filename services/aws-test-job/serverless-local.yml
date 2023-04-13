@@ -1,0 +1,81 @@
+service: mypay-test-job
+
+plugins:
+    - serverless-offline-sns
+    - serverless-offline-sqs
+    - serverless-bundle
+    - serverless-offline
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - sns:Publish
+          Resource: arn:aws:sns:eu-west-1:123456789012:local
+
+custom:
+    stage: ${file(../../../serverless.common.yml):custom.stage}
+
+    #Locally
+    serverless-offline:
+        httpPort: 4004
+        lambdaPort: 5004
+        printOutput: true
+    serverless-offline-sns:
+        port: 4005
+        debug: true
+    serverless-offline-sqs:
+        apiVersion: '2012-11-05'
+        endpoint: http://0.0.0.0:9324
+        region: eu-west-1
+        accessKeyId: local
+        secretAccessKey: local
+
+functions:
+    Publisher:
+        handler: sns/publisher.main
+        events:
+            - http:
+                  path: publish
+                  method: post
+    Subscriber:
+        handler: sns/subscriber.main
+        events:
+            - sns:
+                  arn: arn:aws:sns:eu-west-1:123456789012:local
+
+    SQSSender:
+        handler: sqs/sqs-sender.main
+        events:
+            - http:
+                  path: send/standart
+                  method: post
+        environment:
+            TEST_QUEUE_URL: http://localhost:9324/queue/queue1
+    SQSConsumer:
+        handler: sqs/sqs-consumer.main
+        reservedConcurrency: 10 # Concurrency control
+        events:
+            - sqs:
+                  queueName: queue1
+                  batchSize: 1 # default 10 and maximum 10
+
+    SQSSenderFifo:
+        handler: sqs/sqs-sender-fifo.main
+        events:
+            - http:
+                  path: send/fifo
+                  method: post
+        environment:
+            TEST_QUEUE_URL: http://localhost:9324/queue/queueFifo
+    SQSConsumerFifo:
+        handler: sqs/sqs-consumer-fifo.main
+        reservedConcurrency: 10 # Concurrency control
+        events:
+            - sqs:
+                  queueName: queueFifo
+                  batchSize: 1 # default 10 and maximum 10

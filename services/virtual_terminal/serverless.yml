@@ -1,0 +1,100 @@
+service: mypay-vt
+
+plugins:
+    - serverless-bundle
+    - serverless-plugin-tracing
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    timeout: 30
+    tracing:
+        apiGateway: true
+        lambda: true
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        INFRA_STAGE: ${self:custom.infraStage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        WEB_CLIENT_URL: ${self:custom.webClientUrl}
+        MYPAY_GATEWAY_LINK: ${self:custom.mypayGatewayLink}
+        DATMAN_SES_HANDLER_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/DatmanSesHandlerApiKey}
+        GATEWAY_MESSAGING_ENDPOINT: ${ssm:/cp/${self:custom.infraStage}/cp/GatewayMessagingEndpoint}
+        CUSTOM_DOMAINS: ${ssm:/cp/${self:custom.infraStage}/cp/CustomDomains}
+        DATMAN_API_ENDPOINT: ${ssm:/cp/${self:custom.infraStage}/cp/datman_api_endpoint}
+        CP_DOCS_BUCKET_NAME: ${ssm:/cp/${self:custom.stage}/cp/CPDocsBucket}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: 'Allow' # xray permissions
+          Action:
+              - xray:PutTraceSegments
+              - xray:PutTelemetryRecords
+          Resource:
+              - '*'
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:GetParameters
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - s3:*
+          Resource:
+              - Fn::Join:
+                    - ''
+                    - - 'Fn::ImportValue': ${self:custom.infraStage}-CPDocsBucketArn
+                      - /*
+
+package:
+    artifact: ${opt:artifact, ""}
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+    virtualTerminalEntityPath: ${self:custom.baseApiPath}/virtual_terminal
+    mypayGatewayLink: https://development-testing.dtn8rer07gv5v.amplifyapp.com
+    webClientUrls:
+        dev: https://development.d128x12laj1rvv.amplifyapp.com
+        qa: https://qa.d128x12laj1rvv.amplifyapp.com
+        qaautomation: https://qaautomation.d128x12laj1rvv.amplifyapp.com
+        release: https://release.d128x12laj1rvv.amplifyapp.com
+    webClientUrl: ${self:custom.webClientUrls.${self:custom.infraStage}, self:custom.webClientUrls.dev}
+
+    bundle:
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+            # only on aws
+            - ../../../layers/helper_lib/src
+            - ../../../layers/models_lib/src
+            - ../../../../layers/helper_lib/src
+            - ../../../../layers/models_lib/src
+
+functions:
+    - ${file(functions.yml)}
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

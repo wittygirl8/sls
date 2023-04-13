@@ -1,0 +1,91 @@
+service: mypay-auth-cognito
+
+plugins:
+    - serverless-bundle
+    - serverless-plugin-tracing
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    timeout: 30
+    tracing: true
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        COGNITO_CLIENT_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolClientId}
+        INFRA_STAGE: ${self:custom.infraStage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        EMAIL_CONFIRMATION_HANDLER: ${ssm:/cp/${self:custom.infraStage}/cp/EmailConfirmationHandler}
+        CUSTOM_DOMAINS: ${ssm:/cp/${self:custom.infraStage}/cp/CustomDomains}
+        SENDER_DATMAN_EMAIL: ses-no-reply@datman.je
+        SENDER_OMNIPAY_EMAIL: ses-no-reply@omni-pay.com
+        HMAC_SECRECT: ${ssm:/cp/${self:custom.infraStage}/cp/HmacSignature}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: Allow
+          Action:
+              - cognito-idp:AdminDeleteUser
+              - cognito-idp:AdminGetUser
+              - cognito-idp:AdminLinkProviderForUser
+              - cognito-idp:AdminUpdateUserAttributes
+          Resource: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+        - Effect: Allow
+          Action:
+              - SNS:Publish
+              - ses:*
+              - ssm:GetParameters
+          Resource: '*'
+        - Effect: 'Allow' # xray permissions
+          Action:
+              - xray:PutTraceSegments
+              - xray:PutTelemetryRecords
+          Resource:
+              - '*'
+
+package:
+    artifact: ${opt:artifact, ""}
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+
+    authEntityPath: ${self:custom.baseApiPath}/auth
+
+    bundle:
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+            # only on aws
+            - ../../../layers/models_lib/src
+            - ../../../layers/helper_lib/src
+            - ../../../../layers/helper_lib/src
+            - ../../layers/helper_lib/src
+            - ../../../layers/helper_lib/src
+
+functions:
+    - ${file(functions.yml)}
+# resources:
+#   # API Gateway Errors
+#   - ${file(api-gateway-errors.yml)}

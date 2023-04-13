@@ -1,0 +1,143 @@
+Get:
+    handler: functions/get-users-handler.getUsers
+    events:
+        - http:
+              path: ${self:custom.usersEntityPath}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetByPropertyValue:
+    handler: functions/get-user-handler.getUser
+    events:
+        - http:
+              path: ${self:custom.usersEntityPath}/{property}/{value}
+              method: get
+              cors: true
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              request:
+                  parameters:
+                      paths:
+                          property: true
+                          value: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+Create:
+    handler: functions/create-user-handler.createUser
+    events:
+        - http:
+              path: ${self:custom.usersEntityPath}
+              method: post
+              cors: true
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+Update:
+    handler: functions/update-user-handler.updateUser
+    events:
+        - http:
+              path: ${self:custom.usersEntityPath}/update
+              method: post
+              cors: true
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+    environment:
+        AUDIT_LOGS_QUEUE_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+Delete:
+    handler: functions/delete-user-handler.deleteUser
+    events:
+        - http:
+              path: ${self:custom.usersEntityPath}/delete/{email}
+              method: delete
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          email: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ToggleDisableEnable:
+    handler: functions/toggle-disable-enable-user-handler.toggleDisableEnable
+    events:
+        - http:
+              path: ${self:custom.usersEntityPath}/toggleDisableEnable/{email}
+              method: patch
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          email: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+RolesGet:
+    handler: functions/roles/get-roles-handler.getRoles
+    events:
+        - http:
+              path: ${self:custom.usersEntityPath}/roles
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+SaveUserReferralData:
+    handler: functions/save-user-referral-data-handler.saveUserReferralDataString
+    events:
+        - http:
+              path: ${self:custom.usersEntityPath}/save-user-referral-data
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetUserByCognitoUserName:
+    handler: functions/get-user-by-cognito-uuid.getUserByCognitoUserName
+    events:
+        - http:
+              path: ${self:custom.usersEntityPath}/get-user/{cognitoUuid}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetUserSignupStatus:
+    handler: functions/get-user-signup-status-handler.getUserSignupStatus
+    events:
+        - http:
+              path: ${self:custom.usersEntityPath}/signup-status-email/{email}
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

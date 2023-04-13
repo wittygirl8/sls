@@ -1,0 +1,25 @@
+listTransactions:
+    handler: functions/get-transaction-list-handler.listTransactions
+    events:
+        - http:
+              path: ${self:custom.transactionEntityPath}/list
+              method: post
+              cors: true
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+getStats:
+    handler: functions/get-transaction-stats-handler.getStats
+    events:
+        - http:
+              path: ${self:custom.transactionEntityPath}/stats
+              method: get
+              cors: true
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

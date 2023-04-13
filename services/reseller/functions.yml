@@ -1,0 +1,88 @@
+GetCanonicalReseller:
+    handler: functions/get-canonical-reseller-handler.getCanonicalReseller
+    events:
+        - http:
+              path: ${self:custom.resellerEntityPath}/get-all-canonical-resellers/{resellerId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+CreateNewCanonicalReseller:
+    handler: functions/create-new-canonical-reseller.createCanonicalReseller
+    events:
+        - http:
+              path: ${self:custom.resellerEntityPath}/create-new-canonical-reseller/{resellerId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+UpdateCanonicalResellerData:
+    handler: functions/update-canonical-reseller.updateCanonicalResellerData
+    events:
+        - http:
+              path: ${self:custom.resellerEntityPath}/update-canonical-reseller-data/{canonicalResellerId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetCanonicalResellerData:
+    handler: functions/get-canonical-reseller-data.getCanonicalResellerData
+    events:
+        - http:
+              path: ${self:custom.resellerEntityPath}/get-canonical-reseller-data/{canonicalResellerId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetCanonicalResellerUser:
+    handler: functions/get-by-userid-canonical-reseller.getCanonicalResellerUser
+    events:
+        - http:
+              path: ${self:custom.resellerEntityPath}/canonical-resellers
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+PostDnaCallBackUrl:
+    handler: functions/post-dna-callback-url.postDnaCallBackUrl
+    events:
+        - http:
+              path: ${self:custom.resellerEntityPath}/post-dna-callback-url/{merchantId}
+              method: post
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetAquirerDetails:
+    handler: functions/get-aquirer-details-handler.getAquirerDetails
+    events:
+        - http:
+              path: ${self:custom.resellerEntityPath}/get-aquirer-details/{canonicalResellerId}/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

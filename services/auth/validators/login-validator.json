@@ -1,0 +1,21 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "title": "Log in schema",
+    "required": ["username", "password"],
+    "properties": {
+        "username": {
+            "type": "string",
+            "title": "Username",
+            "minLength": 1,
+            "maxLength": 250
+        },
+        "password": {
+            "type": "string",
+            "title": "Password",
+            "minLength": 8,
+            "maxLength": 250
+        }
+    }
+}

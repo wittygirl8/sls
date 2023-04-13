@@ -1,0 +1,85 @@
+service: mypay-payments
+
+plugins:
+    - serverless-offline
+    - serverless-bundle
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        INFRA_STAGE: ${self:custom.infraStage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        DATMAN_SES_HANDLER_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/DatmanSesHandlerApiKey}
+        GATEWAY_MESSAGING_ENDPOINT: ${ssm:/cp/${self:custom.infraStage}/cp/GatewayMessagingEndpoint}
+        STRIPE_CREDENTIALS: ${ssm:/cp/${self:custom.infraStage}/cp/stripe_credentials}
+        DATMAN_API_ENDPOINT: ${ssm:/cp/${self:custom.infraStage}/cp/datman_api_endpoint}
+        DNA_REPORTING_API_ENDPOINT: ${ssm:/cp/${self:custom.infraStage}/cp/DNAReportingApiEndPoint}
+        DNA_SCOPE: ${ssm:/cp/${self:custom.infraStage}/cp/DNAScope}
+        DNA_CLIENT_SECRET: ${ssm:/cp/${self:custom.infraStage}/cp/DNACientSecret}
+        DNA_CLIENT_ID: ${ssm:/cp/${self:custom.infraStage}/cp/DNAClientId}
+        DNA_GRANT_TYPE: ${ssm:/cp/${self:custom.infraStage}/cp/DNAGrantType}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:GetParameters
+              - sqs:listQueues
+              - sqs:getQueueAttributes
+              - sqs:receiveMessage
+              - sqs:deleteMessage
+              - sqs:sendMessage
+          Resource: '*'
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+    paymentEntityPath: ${self:custom.baseApiPath}/payments
+
+    bundle:
+        sourcemaps: true
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+
+    #Locally
+    serverless-offline:
+        httpPort: 4010
+        lambdaPort: 5010
+        printOutput: true
+
+    output:
+        file: stack-outputs/customer-${self:custom.stage}.yml
+
+functions:
+    - ${file(functions.yml)}
+
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

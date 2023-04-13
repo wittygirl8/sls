@@ -1,0 +1,142 @@
+createStripeAccount:
+    handler: functions/create-stripe-account-handler.createStripeAccount
+    events:
+        - http:
+              path: ${self:custom.adminMerchantsPath}/create-stripe-account/{id}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    environment:
+        AUDIT_LOGS_QUEUE_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+MyPayClientRegistration:
+    handler: functions/mypay-client-registration.handler
+    events:
+        - http:
+              path: ${self:custom.adminMerchantsPath}/mypay-client-registration
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    environment:
+        CARD_STREAM_ACCOUNT_CREATION_QUEUE_URL:
+            'Fn::ImportValue': CardStreamAccountCreationQueueUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+realResellerMerchantRegistration:
+    handler: functions/canonical-reseller-merchant-registration.canonicalResellerMerchant
+    events:
+        - http:
+              path: ${self:custom.adminMerchantsPath}/canonical-reseller-merchant-registration
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    environment:
+        CARD_STREAM_ACCOUNT_CREATION_QUEUE_URL:
+            'Fn::ImportValue': CardStreamAccountCreationQueueUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+acceptTermsAndConditions:
+    handler: functions/accept-terms-and-conditions-handler.acceptTermsAndConditions
+    events:
+        - http:
+              path: ${self:custom.adminMerchantsPath}/accept-terms-and-conditions/{stripeId}/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+updateStripeAccount:
+    handler: functions/update-stripe-account-handler.updateStripeAccount
+    events:
+        - http:
+              path: ${self:custom.adminMerchantsPath}/update-stripe-account/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    environment:
+        AUDIT_LOGS_QUEUE_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+syncMerchantDataToThirdParty:
+    timeout: 180
+    handler: functions/sync-merchant-data-to-third-party.syncMerchantDataToThirdParty
+    events:
+        - schedule: rate(11 minutes)
+
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+CardStreamCreationFifo:
+    handler: functions/create-card-stream-account-handler.createCardStreamAccount
+    events:
+        - sqs:
+              arn:
+                  'Fn::ImportValue': CardStreamAccountCreationQueueFifoArn-${self:custom.infraStage}
+              batchSize: 10 # default 10 and maximum 10
+    environment:
+        CARD_STREAM_ACCOUNT_CREATION_QUEUE_URL:
+            'Fn::ImportValue': CardStreamAccountCreationQueueUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+CreateCardStreamAccountDLQ:
+    handler: functions/create-card-stream-account-dlq.main
+    events:
+        - sqs:
+              arn:
+                  'Fn::ImportValue': CardStreamAccountCreationQueueDLQArn-${self:custom.infraStage}
+              batchSize: 1
+
+AuditLogsFifoQueue:
+    handler: functions/audit-logs-consumer.main
+    events:
+        - sqs:
+              arn:
+                  'Fn::ImportValue': AuditLogsQueueFifoArn-${self:custom.infraStage}
+              batchSize: 10 # default 10 and maximum 10
+    environment:
+        AUDIT_LOGS_QUEUE_FIFO_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AuditLogsDLQ:
+    handler: functions/audit-logs-dlq.main
+    events:
+        - sqs:
+              arn:
+                  'Fn::ImportValue': AuditLogsQueueFifoDLQArn-${self:custom.infraStage}
+              batchSize: 10
+AuditLogDataForAdmin:
+    handler: functions/audit-log-data.auditLogDataForAdmin
+    events:
+        - http:
+              path: ${self:custom.adminMerchantsPath}/audit-data/{resellerId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

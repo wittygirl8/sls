@@ -1,0 +1,33 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "title": "Sign up schema",
+    "required": ["providerId", "email", "resellerUrl", "refreshToken"],
+    "properties": {
+        "providerId": {
+            "type": "string",
+            "title": "Proder Id Cognito User",
+            "minLength": 1,
+            "maxLength": 250
+        },
+        "email": {
+            "type": "string",
+            "title": "Email address",
+            "minLength": 1,
+            "maxLength": 250
+        },
+        "resellerUrl": {
+            "type": "string",
+            "title": "Reseller URL",
+            "minLength": 1,
+            "maxLength": 250
+        },
+        "refreshToken": {
+            "type": "string",
+            "title": "Refresh token",
+            "minLength": 1,
+            "maxLength": 25000
+        }
+    }
+}

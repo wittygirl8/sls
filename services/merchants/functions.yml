@@ -1,0 +1,486 @@
+GetUserMerchants:
+    handler: functions/get-user-merchants-handler.getUserMerchants
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/reseller/{resellerId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+GetAllMerchantsForReseller:
+    handler: functions/get-all-merchants-for-reseller-handler.getAllMerchantsForReseller
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/get-all-merchants-for-reseller/{resellerId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetMerchantsTermsAndConditions:
+    handler: functions/get-merchants-terms-and-conditions-handler.getTermsAndConditionsForMerchant
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/get-merchants-terms-and-conditions/{merchantId}/{modalTermsAndConditions}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetAdminMerchants:
+    handler: functions/get-admin-merchants-handler.getAdminMerchants
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/admin/{resellerId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetMerchant:
+    handler: functions/get-merchant-handler.getMerchant
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/merchant/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+CreateUserMerchant:
+    handler: functions/create-user-merchant-handler.createUserMerchant
+    events:
+        - http:
+              path: ${self:custom.merchantPath}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+UpdateMerchantInfo:
+    handler: functions/update-merchant-info-handler.updateMerchantInfo
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/update-merchant-info/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+DeleteMerchant:
+    handler: functions/delete-merchant-handler.deleteMerchant
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/delete/{merchantId}
+              method: delete
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+RequestCloseMerchant:
+    handler: functions/request-close-merchant-handler.requestCloseMerchant
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/request-close/{merchantId}
+              method: put
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+OnboardingUpdate:
+    handler: functions/onboarding/update-handler.onboardingUpdate
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/save/{merchantId}/onboarding/{onboardingStep}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    environment:
+        AUDIT_LOGS_QUEUE_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+OnboardingGet:
+    handler: functions/onboarding/get-handler.onboardingGet
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/get/{merchantId}/onboarding/{onboardingStep}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+OnboardingGetFullData:
+    handler: functions/onboarding/get-full-data-handler.onboardingFullData
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/get/{merchantId}/onboarding
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+OnboardingComplete:
+    handler: functions/onboarding/complete-handler.onboardingComplete
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/complete/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    environment:
+        AUDIT_LOGS_QUEUE_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+IncompleteOnboardingGet:
+    handler: functions/onboarding/incomplete-onboarding-form-check-handler.incompleteOnBordingFormCheck
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/incomplete/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+T2sIncompleteOnboardingFormCheck:
+    handler: functions/onboarding/t2s-incomplete-onboarding-form-check-handler.t2sIncompleteOnboardingFormCheck
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/t2s-incomplete/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+InviteMembers:
+    handler: functions/team/invite-members-handler.inviteMembers
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/settings/team/invite-members
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+UpdateBusinessDetails:
+    handler: functions/business-details/update-business-details-handler.updateBusinessDetails
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/businessDetails/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    environment:
+        AUDIT_LOGS_QUEUE_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetBusinessDetails:
+    handler: functions/business-details/get-business-details-handler.getBusinessDetails
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/businessDetails/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+CheckFirstWithdrawal:
+    handler: functions/withdrawal/check-first-withdrawal-handler.checkFirstWithdrawal
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/withdrawal/check-first/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+SubmitWithdrawal:
+    handler: functions/withdrawal/submit-withdrawal-handler.submitWithdrawal
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/withdrawal/submit-withdrawal/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+SubmitInternalTransfer:
+    handler: functions/internal-transfer/submit-internal-transfer-handler.submitInternalTransfer
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/internal-transfer/submit-internal-transfer/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AdminGetMerchantData:
+    handler: functions/admin/get-merchant-data-handler.getMerchantDataForAdmin
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/admin-get-merchant-data/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AdminGetMissingMerchantInfo:
+    handler: functions/admin/get-nationality-dob-handler.getMissingData
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/admin-get-missing-merchant-info/{resellerId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AdminMerchantData:
+    handler: functions/admin/get-merchant-docs-handler.getMerchantData
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/admin-merchant-data/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AdminUpdateMissingMerchantInfo:
+    handler: functions/admin/merchant-nationality-dob-handler.updateMissingData
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/admin-update-missing-merchant-info
+              method: put
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AdminUpdateMerchantData:
+    handler: functions/admin/update-merchant-data-handler.updateMerchantDataForAdmin
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/admin-update-merchant-data/{merchantId}
+              method: put
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    environment:
+        AUDIT_LOGS_QUEUE_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AdminGetPendingMerchants:
+    handler: functions/admin/get-pending-merchants-handler.getPendingMerchantsForAdmin
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/admin-get-pending-merchants/{resellerId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetMerchantBusinessTypeAndBankStatus:
+    handler: functions/business-details/get-merchant-business-type-and-bank-status-handler.getMerchantBusinessTypeAndBankStatus
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/get-merchant-business-type-and-bank-status/{id}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+SendProductUpdateList:
+    handler: functions/products/send-updated-list.sendUpdatedList
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/send-updated-products-list/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+SendProductStatusEmail:
+    handler: functions/products/send-product-status-email.sendProductStatus
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/send-product-status-email/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+UpdateMerchantData:
+    handler: functions/update-merchant-data-handler.updateMerchantData
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/update-merchant-data/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+AdminRejectMerchant:
+    handler: functions/admin/merchant-reject-handler.MerchantRejectHandler
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/admin-reject-merchant
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetCanonicalResellerMerchantData:
+    handler: functions/canonical-reseller/get-canonical-reseller-merchant-handler.getCanonicalResellerMerchantData
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/get-canonical-reseller-merchant/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+MerchantEnableAutoWithdrawals:
+    handler: functions/merchant-enable-auto-withdrawal-handler.merchantEnableAutoWithdrawalHandler
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/merchant-enable-auto-withdrawal/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetQrPaymentUrl:
+    handler: functions/multiple-qr-handler.multipleQrPayment
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/qr-payment-url/{uuid}
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+LinkMerchantQr:
+    handler: functions/link-merchant-qr-handler.linkMerchantQr
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/link-merchant-qr/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetMerchantAcquirer:
+    handler: functions/get-merchant-acquirer-handler.getMerchantAcquirer
+    events:
+        - http:
+              path: ${self:custom.merchantPath}/get-merchant-acquirer
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

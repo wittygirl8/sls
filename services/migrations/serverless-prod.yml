@@ -1,0 +1,62 @@
+service: mypay-migrations
+
+plugins:
+    - serverless-plugin-scripts
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    timeout: 300
+    environment:
+        INFRA_STAGE: ${self:custom.stage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.stage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.stage}/cp/SecretManagerArn}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+
+custom:
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    defaultConfig: serverless.yml
+    config: ${opt:config, self:custom.defaultConfig}
+
+    bundle:
+        # cache: true
+        externals:
+            - mypay-helpers
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+        forceInclude:
+            - aws-sdk
+
+    scripts:
+        commands:
+            migrations-up: sls invoke -f ServiceMigrationsUp --stage=${self:custom.stage} --config=${self:custom.config}
+            migrations-down: sls invoke -f ServiceMigrationsDown --stage=${self:custom.stage} --config=${self:custom.config}
+
+functions:
+    ServiceMigrationsUp:
+        handler: functions/migrations-up-handler.migrationsUp
+        layers:
+            - ${ssm:/cp/${self:custom.stage}/cp/HelperlibLambdaLayerQualifiedArn}
+            - ${ssm:/cp/${self:custom.stage}/cp/ModelslibLambdaLayerQualifiedArn}
+    ServiceMigrationsDown:
+        handler: functions/migrations-down-handler.migrationsDown
+        layers:
+            - ${ssm:/cp/${self:custom.stage}/cp/HelperlibLambdaLayerQualifiedArn}
+            - ${ssm:/cp/${self:custom.stage}/cp/ModelslibLambdaLayerQualifiedArn}

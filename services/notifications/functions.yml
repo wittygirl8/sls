@@ -1,0 +1,73 @@
+GetUrgentMessages:
+    handler: functions/admin/get-urgent-messages-handler.getUrgentMessages
+    events:
+        - http:
+              path: ${self:custom.notificationPath}/admin/urgent-messages/{resellerId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AddUrgentMessage:
+    handler: functions/admin/add-urgent-message-handler.addUrgentMessage
+    events:
+        - http:
+              path: ${self:custom.notificationPath}/admin/urgent-messages/{resellerId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+UpdateUrgentMessage:
+    handler: functions/admin/update-urgent-message-handler.updateUrgentMessage
+    events:
+        - http:
+              path: ${self:custom.notificationPath}/admin/urgent-messages/update/{urgentMessageId}
+              method: put
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+DeleteUrgentMessage:
+    handler: functions/admin/delete-urgent-message-handler.deleteUrgentMessage
+    events:
+        - http:
+              path: ${self:custom.notificationPath}/admin/urgent-messages/delete/{urgentMessageId}
+              method: delete
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+RequestForSupport:
+    handler: functions/request-for-support-handler.requestForSupport
+    events:
+        - http:
+              path: ${self:custom.notificationPath}/request-for-support
+              method: post
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+NotifyApplicationFailures:
+    handler: functions/notify-application-failures.notifyApplicationFailures
+    events:
+        - http:
+              path: ${self:custom.notificationPath}/notify-application-failures
+              method: post
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

@@ -1,0 +1,96 @@
+GetMerchantDetails:
+    handler: functions/get-merchant-details-handler.getMerchantDetails
+    events:
+        - http:
+              path: ${self:custom.bifrostEntityPath}/get-merchant-details/{merchantId}
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetMerchantInfoForDNA:
+    handler: functions/get-merchant-info-for-dna.getMerchantDetailsForDNA
+    events:
+        - http:
+              path: ${self:custom.bifrostEntityPath}/get-merchant-info-for-dna/{merchantQrId}
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetMerchantId:
+    handler: functions/get-merchant-id-from-qr-uuid-handler.getMerchantId
+    events:
+        - http:
+              path: ${self:custom.bifrostEntityPath}/get-merchant-id
+              method: get
+              cors: true
+
+        - schedule:
+              rate: rate(2 minutes)
+              enabled: ${self:custom.enableKeepWarm}
+
+              input:
+                  keep-warm: true
+                  headers:
+                      api_token: ${ssm:/cp/${self:custom.infraStage}/cp/BifrostAPIKey}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetDNAMerchantMetadata:
+    handler: functions/get-dna-metadata-handler.getDNAMetadata
+    events:
+        - http:
+              path: ${self:custom.bifrostEntityPath}/get-dna-merchant-metadata/{merchantId}
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+BifrostSendPushNotification:
+    handler: functions/bifrost-send-push-notification-handler.bifrostSendPushNotificationHandler
+    events:
+        - http:
+              path: ${self:custom.bifrostEntityPath}/bifrost-send-push-notification
+              method: post
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetFirstDataMerchantId:
+    handler: functions/get-first-data-merchant-id-handler.getFirstDataMerchantId
+    events:
+        - http:
+              path: ${self:custom.bifrostEntityPath}/get-first-data-merchant-id/{merchantId}
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetMerchantInfoForQrV3:
+    handler: functions/get-merchant-info-for-qrV3.getMerchantDetailsForQrV3
+    events:
+        - http:
+              path: ${self:custom.bifrostEntityPath}/get-merchant-info-for-qrV3/{merchantQrId}
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ObnSampleWebhook:
+    handler: functions/obn-webhook.obnTestWebhook
+    events:
+        - http:
+              path: ${self:custom.bifrostEntityPath}/obn-webhook
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

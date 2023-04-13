@@ -1,0 +1,110 @@
+AllDocumentTypes:
+    handler: functions/document-types-handler.handler
+    events:
+        - http:
+              path: ${self:custom.taxonomyPath}/document-types
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+BusinessTypes:
+    handler: functions/get-business-types-handler.getBusinessTypes
+    events:
+        - http:
+              path: ${self:custom.taxonomyPath}/business-types
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+MotoRenewalReason:
+    handler: functions/moto-renewal-reason-handler.getMotoRenewalReason
+    events:
+        - http:
+              path: ${self:custom.taxonomyPath}/moto-renewal-reason
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+BusinessAndProductDescriptionsGet:
+    handler: functions/get-descriptions.getDescriptions
+    events:
+        - http:
+              path: ${self:custom.taxonomyPath}/descriptions
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ProductsRequiredGet:
+    handler: functions/get-products-required-handler.getProductsRequired
+    events:
+        - http:
+              path: ${self:custom.taxonomyPath}/products-required
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ResellerAll:
+    handler: functions/get-resellers-handler.getResellers
+    events:
+        - http:
+              path: ${self:custom.taxonomyPath}/resellers
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetAllAcquirers:
+    handler: functions/acquirer/get-all-acquirers-handler.getAcquirers
+    events:
+        - http:
+              path: ${self:custom.taxonomyPath}/get-acquirers
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AddNewAcquirers:
+    handler: functions/acquirer/add-new-acquirer-handler.addAcquirer
+    events:
+        - http:
+              path: ${self:custom.taxonomyPath}/add-new-acquirer/{newAcquirerData}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+CheckAppUpdate:
+    handler: functions/check-app-update.handler
+    events:
+        - http:
+              path: ${self:custom.taxonomyPath}/check-app-update/{platform}
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

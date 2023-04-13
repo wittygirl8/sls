@@ -1,0 +1,29 @@
+{
+    "name": "migrations",
+    "version": "",
+    "description": "",
+    "scripts": {
+        "test": "jest tests"
+    },
+    "author": "",
+    "license": "",
+    "devDependencies": {
+        "aws-sdk": "^2.695.0",
+        "serverless-plugin-custom-roles": "^1.1.1",
+        "serverless-plugin-scripts": "^1.0.2",
+        "jest": "^26.0.1",
+        "babel-jest": "^26.0.1",
+        "@babel/core": "^7.10.2",
+        "@babel/preset-env": "^7.10.2",
+        "mysql2": "^2.1.0",
+        "sequelize": "^5.21.12"
+    },
+    "dependencies": {
+        "@types/umzug": "^2.2.3",
+        "dotenv": "^8.2.0",
+        "umzug": "^2.3.0",
+        "flake-idgen": "^1.4.0",
+        "biguint-format": "^1.0.2",
+        "nanoid": "^3.1.10"
+    }
+}

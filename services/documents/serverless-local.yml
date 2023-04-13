@@ -1,0 +1,90 @@
+service: mypay-documents
+
+plugins:
+    - serverless-offline
+    - serverless-bundle
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        INFRA_STAGE: ${self:custom.stage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        BUCKET_NAME: ${ssm:/cp/${self:custom.stage}/cp/BucketUpload}
+        CP_DOCS_BUCKET_NAME: ${ssm:/cp/${self:custom.stage}/cp/CPDocsBucket}
+        QR_PAYMENT_LINK: ${ssm:/cp/${self:custom.stage}/cp/QRPaymentLink}
+        ADYEN_UPLOAD_DOCUMENT: http://localhost:4013/dev/api/v1/adyen/adyen-upload-document
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: Allow
+          Action:
+              - s3:*
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:GetParameters
+              - sqs:listQueues
+              - sqs:getQueueAttributes
+              - sqs:receiveMessage
+              - sqs:deleteMessage
+              - sqs:sendMessage
+          Resource: '*'
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+
+    documentPath: ${self:custom.baseApiPath}/documents
+
+    bundle:
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+        copyFiles:
+            - from: '/background_qr_code_image/*'
+              to: './'
+            - from: '/fonts/open-sans/open-sans-32-black/*'
+              to: './'
+
+    #Locally
+    serverless-offline:
+        httpPort: 4008
+        lambdaPort: 5008
+        printOutput: true
+
+package:
+    include:
+        - ./utils/document-entity.js
+
+functions:
+    - ${file(functions.yml)}
+
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

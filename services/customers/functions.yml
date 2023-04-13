@@ -1,0 +1,347 @@
+Hierarchy:
+    handler: functions/get-hierarchy-handler.getHierarchy
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/getHierarchy
+              method: get
+              cors: true
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AssignEntityAndRoleToUser:
+    handler: functions/assign-entity-and-role-to-user-handler.assignEntityAndRoleToUser
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/assignEntityAndRoleToUser
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          id: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+BusinessGet:
+    handler: functions/business/get-businesses-handler.getBusinesses
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+BusinessGetById:
+    handler: functions/business/get-business-handler.getBusiness
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          id: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+BusinessCreate:
+    handler: functions/business/create-business-handler.createBusiness
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+BusinessUpdate:
+    handler: functions/business/update-business-handler.updateBusiness
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}
+              method: put
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          id: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+BusinessDelete:
+    handler: functions/business/delete-business-handler.deleteBusiness
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}
+              method: delete
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          id: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ClientGet:
+    handler: functions/client/get-clients-handler.getClients
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}/clients
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ClientGetById:
+    handler: functions/client/get-client-handler.getClient
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}/clients/{clientId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          businessId: true
+                          clientId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ClientCreate:
+    handler: functions/client/create-client-handler.createClient
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}/clients
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          businessId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ClientUpdate:
+    handler: functions/client/update-client-handler.updateClient
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}/clients/{clientId}
+              method: put
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          businessId: true
+                          clientId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ClientDelete:
+    handler: functions/client/delete-client-handler.deleteClient
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}/clients/{clientId}
+              method: delete
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          businessId: true
+                          clientId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+MerchantGet:
+    handler: functions/merchant/get-merchants-handler.getMerchants
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}/clients/{clientId}/merchants
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+MerchantGetById:
+    handler: functions/merchant/get-merchant-handler.getMerchant
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}/clients/{clientId}/merchants/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          businessId: true
+                          clientId: true
+                          merchantId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+MerchantCreate:
+    handler: functions/merchant/create-merchant-handler.createMerchant
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}/clients/{clientId}/merchants
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          businessId: true
+                          clientId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+MerchantUpdate:
+    handler: functions/merchant/update-merchant-handler.updateMerchant
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}/clients/{clientId}/merchants/{merchantId}
+              method: put
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          businessId: true
+                          clientId: true
+                          merchantId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+MerchantDelete:
+    handler: functions/merchant/delete-merchant-handler.deleteMerchant
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}/clients/{clientId}/merchants/{merchantId}
+              method: delete
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          businessId: true
+                          clientId: true
+                          merchantId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+BusinessCheckName:
+    handler: functions/business/check-business-name-handler.checkBusinessName
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/check-name
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+RelationshipGetRole:
+    handler: functions/relationship/get-role-from-relationship-handler.getRoleFromRelationship
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/relationships/getRoleFromRelationship
+              method: patch
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+RelationshipDelete:
+    handler: functions/relationship/delete-relationship-handler.deleteRelationship
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/relationships/{id}
+              method: delete
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  parameters:
+                      paths:
+                          id: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ClientNameIsUnique:
+    handler: functions/client/check-client-name-is-unique-handler.checkClientNameIsUnique
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}/clients/is-unique
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+MerchantNameIsUnique:
+    handler: functions/merchant/check-merchant-name-is-unique-handler.checkMerchantNameIsUnique
+    events:
+        - http:
+              path: ${self:custom.customersEntityPath}/businesses/{businessId}/clients/{clientId}/merchants/is-unique
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

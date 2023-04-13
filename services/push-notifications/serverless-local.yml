@@ -1,0 +1,55 @@
+service: mypay-push-notifications
+
+plugins:
+    - serverless-offline
+    - serverless-bundle
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        INFRA_STAGE: ${self:custom.infraStage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        API_KEY_FOR_MATCH: ${ssm:/cp/${self:custom.infraStage}/cp/PushNotificationEndpointsApiKey}
+        PLATFORM_ARN_ANDROID: ${ssm:/cp/${self:custom.infraStage}/cp/PlatformArnAndroid}
+        PLATFORM_ARN_IOS: ${ssm:/cp/${self:custom.infraStage}/cp/PlatformArnIOS}
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+    pushNotificationPath: ${self:custom.baseApiPath}/push-notification
+
+    bundle:
+        sourcemaps: true
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+
+    #Locally
+    serverless-offline:
+        httpPort: 4019
+        lambdaPort: 5019
+        printOutput: true
+        useChildProcesses: true
+
+    output:
+        file: stack-outputs/customer-${self:custom.stage}.yml
+
+functions:
+    - ${file(functions.yml)}
+
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

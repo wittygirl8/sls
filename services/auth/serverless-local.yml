@@ -1,0 +1,83 @@
+service: mypay-auth
+
+plugins:
+    - serverless-offline
+    - serverless-bundle
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        POST_REGISTRATION_VERIFICATION_REDIRECT_URL: http://localhost:3000
+        EMAIL_CONFIRMATION_HANDLER: http://localhost:4001/dev/api/v1/auth/confirm-email
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.stage}/cp/CognitoUserPoolId}
+        COGNITO_CLIENT_ID: ${ssm:/cp/${self:custom.stage}/cp/CognitoUserPoolClientId}
+        INFRA_STAGE: ${self:custom.infraStage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        WEB_CLIENT_URL: ${self:custom.webClientUrl}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: Allow
+          Action:
+              - cognito-idp:AdminDeleteUser
+              - cognito-idp:AdminGetUser
+              - cognito-idp:AdminLinkProviderForUser
+              - cognito-idp:AdminUpdateUserAttributes
+              - cognito-idp:AdminSetUserPassword
+          Resource:
+              'Fn::ImportValue': ${self:custom.stage}-CognitoUserPoolArn
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:GetParameters
+          Resource: '*'
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+    webClientUrls:
+        dev: http://localhost:3000
+    webClientUrl: ${self:custom.webClientUrls.${self:custom.infraStage}, self:custom.webClientUrls.dev}
+    emailConfirmationHandler: http://localhost:4001/dev/api/v1/auth/confirm-email
+
+    authEntityPath: ${self:custom.baseApiPath}/auth
+
+    bundle:
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+    #Locally
+    serverless-offline:
+        httpPort: 4001
+        lambdaPort: 5001
+        printOutput: true
+
+functions:
+    - ${file(functions.yml)}
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

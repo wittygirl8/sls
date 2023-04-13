@@ -1,0 +1,84 @@
+service: mypay-reseller
+
+plugins:
+    - serverless-offline
+    - serverless-bundle
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        COGNITO_CLIENT_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolClientId}
+        INFRA_STAGE: ${self:custom.stage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        WEB_CLIENT_URL: ${self:custom.webClientUrl}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:*
+              - events:*
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - cognito-idp:AdminCreateUser
+              - cognito-idp:AdminDeleteUser
+              - cognito-idp:AdminEnableUser
+              - cognito-idp:AdminDisableUser
+              - cognito-idp:ListUsers
+          Resource: ${ssm:/${self:custom.infraStage}/CognitoUserPoolArn}
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+    webClientUrls:
+        dev: http://localhost:3000
+    webClientUrl: ${self:custom.webClientUrls.${self:custom.infraStage}, self:custom.webClientUrls.dev}
+    resellerEntityPath: ${self:custom.baseApiPath}/reseller
+
+    bundle:
+        sourcemaps: true
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+
+    #Locally
+    serverless-offline:
+        httpPort: 4018
+        lambdaPort: 5018
+        printOutput: true
+
+    # output:
+    #     file: stack-outputs/customer-${self:provider.alias}.yml
+
+functions:
+    - ${file(functions.yml)}
+
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

@@ -1,0 +1,15 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "title": "Presign Url put schema",
+    "required": ["filename"],
+    "properties": {
+        "filename": {
+            "type": "string",
+            "title": "Filename",
+            "minLength": 1,
+            "maxLength": 250
+        }
+    }
+}

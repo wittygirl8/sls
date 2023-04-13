@@ -1,0 +1,94 @@
+service: mypay-settings
+
+plugins:
+    - serverless-offline
+    - serverless-bundle
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        INFRA_STAGE: ${self:custom.infraStage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        BANK_VALIDATION_UK_API_ENDPOINT: ${ssm:/cp/${self:custom.infraStage}/cp/BankValidationUKAPIEndpoint}
+        BANK_VALIDATION_UK_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/BankValidationUKAPIKey}
+        ADDRESS_IO_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/AddressIOAPIKey}
+        COMPANIES_HOUSE_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/CompaniesHouseAPIKey}
+        WEB_CLIENT_URL: http://localhost:3000
+        ADYEN_UPDATE_METADATA: http://localhost:4013/dev/api/v1/adyen/adyen-update-metadata
+        BANK_TOKENIZATION_API_URL: ${ssm:/cp/${self:custom.infraStage}/cp/BankTokenizationApiUrl}
+        BANK_TOKENIZATION_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/BankTokenizationApiKey}
+        DNA_URL: http://localhost:4020/dev/api/v1/dna
+        DATMAN_SES_HANDLER_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/DatmanSesHandlerApiKey}
+        GATEWAY_MESSAGING_ENDPOINT: ${ssm:/cp/${self:custom.infraStage}/cp/GatewayMessagingEndpoint}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: Allow
+          Action:
+              - cognito-idp:AdminCreateUser
+              - cognito-idp:AdminDeleteUser
+              - cognito-idp:AdminEnableUser
+              - cognito-idp:AdminDisableUser
+              - cognito-idp:ListUsers
+              - cognito-idp:AdminSetUserPassword
+          Resource: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:GetParameters
+              - sqs:listQueues
+              - sqs:getQueueAttributes
+              - sqs:receiveMessage
+              - sqs:deleteMessage
+              - sqs:sendMessage
+          Resource: '*'
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+
+    settingsPath: ${self:custom.baseApiPath}/settings
+
+    bundle:
+        sourcemaps: true
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+
+    #Locally
+    serverless-offline:
+        httpPort: 4006
+        lambdaPort: 5006
+        printOutput: true
+
+functions:
+    - ${file(functions.yml)}
+
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

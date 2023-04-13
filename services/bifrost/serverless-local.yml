@@ -1,0 +1,75 @@
+service: mypay-bifrost
+
+plugins:
+    - serverless-offline
+    - serverless-bundle
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        INFRA_STAGE: ${self:custom.stage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        BIFROST_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/BifrostAPIKey}
+        PUSH_NOTIFICATION_ENDPOINTS: 'http://localhost:4019/dev/api/v1/push-notification'
+        PUSH_NOTIFICATION_ENDPOINTS_API_KEY: 'DS3E0M7PE6NP2RABXFKC'
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:*
+              - events:*
+          Resource: '*'
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+    bifrostEntityPath: ${self:custom.baseApiPath}/bifrost
+    enableKeepWarm: false
+
+    bundle:
+        sourcemaps: true
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+
+    #Locally
+    serverless-offline:
+        httpPort: 4017
+        lambdaPort: 5017
+        printOutput: true
+
+    # output:
+    #     file: stack-outputs/customer-${self:provider.alias}.yml
+
+functions:
+    - ${file(functions.yml)}
+
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

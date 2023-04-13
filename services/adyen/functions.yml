@@ -1,0 +1,121 @@
+AdyenOnboarding:
+    handler: functions/adyen-onboarding-handler.adyenOnboardingHandler
+    events:
+        - http:
+              path: ${self:custom.adyenEntityPath}/adyen-onboarding/{merchantId}/{resellerId}/{adyenLevel}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AdyenAccountNotificationWebhookHandler:
+    handler: functions/adyen-account-notification-webhook-handler.adyenAccountNotificationWebhookHandler
+    events:
+        - http:
+              path: ${self:custom.adyenEntityPath}/adyen-onboarding/account-notification-webhook
+              method: post
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetAdyenAccount:
+    handler: functions/get-adyen-accounts-webhook-handler.getAdyenAccountsHandler
+    events:
+        - http:
+              path: ${self:custom.adyenEntityPath}/adyen-account/get-adyen-account/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AdyenUpdateMetadata:
+    handler: functions/adyen-update-metadata-handler.adyenUpdateMetadataHandler
+    events:
+        - http:
+              path: ${self:custom.adyenEntityPath}/adyen-update-metadata/{merchantId}/{resellerId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AdyenUploadDocument:
+    handler: functions/adyen-upload-document-handler.adyenUploadDocumentHandler
+    events:
+        - http:
+              path: ${self:custom.adyenEntityPath}/adyen-upload-document/{merchantId}/{documentId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetAdyenResponse:
+    handler: functions/get-adyen-response-handler.getAdyenResponse
+    events:
+        - http:
+              path: ${self:custom.adyenEntityPath}/get-adyen-response/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+AdyenOnboardingRedirectionForm:
+    handler: functions/adyen-onboarding-form.adyenOnboardingFormRedirection
+    events:
+        - http:
+              path: ${self:custom.adyenEntityPath}/third-party/adyen/onboarding
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetAdyenHopUrl:
+    handler: functions/get-adyen-hop-url.getAdyenHopUrl
+    events:
+        - http:
+              path: ${self:custom.adyenEntityPath}/get-adyen-hop-url/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GFOOnboardingStatusGET:
+    handler: functions/gfo-onboarding-status.gfoOnboardingStatus
+    events:
+        - http:
+              path: ${self:custom.adyenEntityPath}/onboarding/gfo/{merchantId}
+              method: get
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GFOOnboardingStatusPOST:
+    handler: functions/gfo-onboarding-status.gfoOnboardingStatus
+    events:
+        - http:
+              path: ${self:custom.adyenEntityPath}/onboarding/gfo
+              method: post
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

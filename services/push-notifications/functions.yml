@@ -1,0 +1,60 @@
+# GetDeviceRegistrationData:
+#     handler: functions/get-device-registration-handler.getDeviceRegistration
+#     events:
+#         - http:
+#               path: ${self:custom.pushNotificationPath}/device-id/{merchantId}
+#               method: get
+#               cors: true
+#     layers:
+#         - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+#         - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+DeviceRegistration:
+    handler: functions/device-registration-handler.deviceRegistration
+    events:
+        - http:
+              path: ${self:custom.pushNotificationPath}/device-id-registration/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+SendPushNotification:
+    handler: functions/send-push-notification-handler.sendPushNotification
+    events:
+        - http:
+              path: ${self:custom.pushNotificationPath}/send-push-notification
+              method: post
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+RemoveDeviceRegistrationData:
+    handler: functions/remove-device-registration-handler.removeDeviceRegistration
+    events:
+        - http:
+              path: ${self:custom.pushNotificationPath}/remove-device/{merchantId}/{deviceId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+SetupPushNotifications:
+    handler: functions/setup-push-notification-handler.setUpPushNotification
+    events:
+        - http:
+              path: ${self:custom.pushNotificationPath}/setup-push-notification/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

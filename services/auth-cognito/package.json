@@ -1,0 +1,44 @@
+{
+    "name": "auth",
+    "version": "",
+    "description": "",
+    "scripts": {
+        "test": "jest tests",
+        "offline": "title Auth Service && serverless offline --config=serverless-local.yml start ",
+        "watch": "npm-watch"
+    },
+    "watch": {
+        "offline": {
+            "patterns": [
+                "functions"
+            ]
+        }
+    },
+    "author": "",
+    "license": "",
+    "devDependencies": {
+        "@babel/core": "^7.10.2",
+        "@babel/preset-env": "^7.10.2",
+        "aws-sdk": "^2.695.0",
+        "babel-jest": "^26.0.1",
+        "jest": "^26.0.1",
+        "jsonwebtoken": "^8.5.1",
+        "jwk-to-pem": "^2.0.3",
+        "serverless-plugin-tracing": "^2.0.0"
+    },
+    "dependencies": {
+        "amazon-cognito-identity-js": "^4.3.1",
+        "atob": "^2.1.2",
+        "crypto-js": "^4.0.0",
+        "dotenv": "^8.2.0",
+        "node-fetch": "^2.6.0",
+        "otp-generator": "^2.0.0",
+        "password-generator": "^2.3.2",
+        "php-serialize": "^4.0.2"
+    },
+    "jest": {
+        "moduleNameMapper": {
+            "amazon-cognito-identity-js": "<rootDir>/tests/__mocks__/amazon-cognito-identity-js/index.js"
+        }
+    }
+}

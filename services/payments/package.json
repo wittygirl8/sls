@@ -1,0 +1,41 @@
+{
+    "name": "payments",
+    "version": "",
+    "description": "",
+    "scripts": {
+        "test": "jest tests",
+        "offline": "title Payments Service && serverless offline --config=serverless-local.yml start",
+        "watch": "npm-watch"
+    },
+    "watch": {
+        "offline": {
+            "patterns": [
+                "functions",
+                "business-logic",
+                "../libs"
+            ]
+        }
+    },
+    "author": "",
+    "license": "",
+    "devDependencies": {
+        "npm-watch": "^0.6.0",
+        "@babel/core": "^7.10.2",
+        "@babel/preset-env": "^7.10.2",
+        "@types/jest": "^26.0.3",
+        "babel-jest": "^26.0.1",
+        "jest": "^26.0.1",
+        "serverless-aws-alias": "^1.8.0",
+        "serverless-plugin-tracing": "^2.0.0",
+        "aws-sdk": "^2.737.0"
+    },
+    "dependencies": {
+        "axios": "^0.19.2",
+        "base-64": "^1.0.0",
+        "dotenv": "^8.2.0",
+        "moment": "^2.29.3",
+        "query-string": "^6.11.0",
+        "stripe": "^8.145.0",
+        "utf8": "^3.0.0"
+    }
+}

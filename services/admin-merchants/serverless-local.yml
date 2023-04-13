@@ -1,0 +1,90 @@
+service: mypay-admin-merchants
+
+plugins:
+    - serverless-offline
+    - serverless-bundle
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        COGNITO_CLIENT_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolClientId}
+        INFRA_STAGE: ${self:custom.stage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        WEB_CLIENT_URL: ${self:custom.webClientUrl}
+        STRIPE_CREDENTIALS: ${ssm:/cp/${self:custom.infraStage}/cp/stripe_credentials}
+        DATMAN_API_ENDPOINT: ${ssm:/cp/${self:custom.infraStage}/cp/datman_api_endpoint}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: Allow
+          Action:
+              - cognito-idp:AdminCreateUser
+              - cognito-idp:AdminDeleteUser
+              - cognito-idp:AdminEnableUser
+              - cognito-idp:AdminDisableUser
+              - cognito-idp:ListUsers
+          Resource: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:*
+              - events:*
+              - sqs:listQueues
+              - sqs:getQueueAttributes
+              - sqs:receiveMessage
+              - sqs:deleteMessage
+              - sqs:sendMessage
+          Resource: '*'
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+    webClientUrls:
+        dev: http://localhost:3000
+    webClientUrl: ${self:custom.webClientUrls.${self:custom.infraStage}, self:custom.webClientUrls.dev}
+
+    adminMerchantsPath: ${self:custom.baseApiPath}/admin/merchants
+
+    bundle:
+        sourcemaps: true
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+
+    #Locally
+    serverless-offline:
+        httpPort: 4014
+        lambdaPort: 5014
+        printOutput: true
+
+functions:
+    - ${file(functions.yml)}
+
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

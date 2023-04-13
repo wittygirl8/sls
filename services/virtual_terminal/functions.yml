@@ -1,0 +1,38 @@
+createSale:
+    handler: functions/create-sale-handler.createSale
+    events:
+        - http:
+              path: ${self:custom.virtualTerminalEntityPath}/vt/sale/create
+              method: post
+              cors: true
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+sendPayByLinkEmail:
+    handler: functions/send-pay-by-link-email-handler.sendPayByLinkEmail
+    events:
+        - http:
+              path: ${self:custom.virtualTerminalEntityPath}/send-pay-by-link-email
+              method: post
+              cors: true
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+sendPaymentInvoice:
+    handler: functions/send-payment-invoice-handler.sendPaymentInvoice
+    events:
+        - http:
+              path: ${self:custom.virtualTerminalEntityPath}/send-payment-invoice/{merchantId}
+              method: post
+              cors: true
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

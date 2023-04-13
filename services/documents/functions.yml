@@ -1,0 +1,330 @@
+PresignedUrlPut:
+    handler: functions/presigned-url-put.main
+    events:
+        - http:
+              path: ${self:custom.documentPath}/presigned-url-put-object/{entity}/{entityId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  schema:
+                      application/json: ${file(validators/presign.json)}
+                  path:
+                      entity: true
+                      entityId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+PresignedUrlGet:
+    handler: functions/presigned-url-get.main
+    events:
+        - http:
+              path: ${self:custom.documentPath}/presigned-url-get-object/{entity}/{entityId}/{documentId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  schema:
+                      application/json: ${file(validators/presign.json)}
+                  path:
+                      entity: true
+                      entityId: true
+                      documentId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+RemoveObject:
+    handler: functions/remove-object.main
+    events:
+        - http:
+              path: ${self:custom.documentPath}/remove-object/{entity}/{entityId}/{documentId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  schema:
+                      application/json: ${file(validators/presign.json)}
+                  path:
+                      entity: true
+                      entityId: true
+                      documentId: true
+    environment:
+        AUDIT_LOGS_QUEUE_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+RemoveBucketObject:
+    handler: functions/remove-bucket-object.main
+    events:
+        - http:
+              path: ${self:custom.documentPath}/remove-bucket-object/{entity}/{entityId}/{documentId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  schema:
+                      application/json: ${file(validators/presign.json)}
+                  path:
+                      entity: true
+                      entityId: true
+                      documentId: true
+    environment:
+        AUDIT_LOGS_QUEUE_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+ListObjects:
+    handler: functions/list-objects.main
+    events:
+        - http:
+              path: ${self:custom.documentPath}/list-objects/{entity}/{entityId}/{flag}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  path:
+                      entity: true
+                      entityId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+SaveObjectToDB:
+    handler: functions/save-object-db.main
+    events:
+        - http:
+              path: ${self:custom.documentPath}/save/{entity}/{entityId}/{documentId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  schema:
+                      application/json: ${file(validators/presign.json)}
+                  path:
+                      entity: true
+                      entityId: true
+                      documentId: true
+    environment:
+        AUDIT_LOGS_QUEUE_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+SendNotificationToAdmins:
+    handler: functions/uploading-document-email-sender.main
+    events:
+        - http:
+              path: ${self:custom.documentPath}/send-email-notification-to-admins
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+SendNotesToCostumer:
+    handler: functions/admin/send-notes-to-costumer-email.main
+    events:
+        - http:
+              path: ${self:custom.documentPath}/send-notes-to-costumer-email
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+TAndCPresignedUrlPut:
+    handler: functions/terms-and-conditions/terms-and-condition-presigned-url-put.putPreSignedUrl
+    events:
+        - http:
+              path: ${self:custom.documentPath}/terms-and-conditions/presigned-url-put-object/{entity}/{entityId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  schema:
+                      application/json: ${file(validators/presign.json)}
+                  path:
+                      entity: true
+                      entityId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+TAndCPresignedUrlGet:
+    handler: functions/terms-and-conditions/terms-and-condition-presigned-url-get.getPreSignedUrl
+    events:
+        - http:
+              path: ${self:custom.documentPath}/terms-and-conditions/presigned-url-get-object/{entity}/{entityId}/{documentId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  schema:
+                      application/json: ${file(validators/presign.json)}
+                  path:
+                      entity: true
+                      entityId: true
+                      documentId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+SaveTermsAndCondition:
+    handler: functions/terms-and-conditions/save-terms-and-condition-db.saveTermsAndConditions
+    events:
+        - http:
+              path: ${self:custom.documentPath}/terms-and-condition/save/{entity}/{entityId}/{documentId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  path:
+                      entity: true
+                      entityId: true
+                      documentId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetTermsAndConditions:
+    handler: functions/terms-and-conditions/get-terms-and-conditions.getTermsAndConditions
+    events:
+        - http:
+              path: ${self:custom.documentPath}/terms-and-condition/get/{entity}/{entityId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  path:
+                      entity: true
+                      entityId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+UpdateDocumentStatus:
+    handler: functions/admin/update-document-status-handler.updateDocumentStatusHandler
+    events:
+        - http:
+              path: ${self:custom.documentPath}/update-document-status/{merchantId}/{documentId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    environment:
+        AUDIT_LOGS_QUEUE_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GenerateQrCodeForMerchants:
+    timeout: 500
+    handler: functions/qr-code-generate-handler.qrCodeGenerate
+    events:
+        - schedule: rate(7 minutes)
+
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetQrCode:
+    handler: functions/get-qr-code-handler.getQrCode
+    events:
+        - http:
+              path: ${self:custom.documentPath}/get-qr-code/{merchantId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+FetchQrCodes:
+    handler: functions/get-qr-code-handler.fetchQrCodes
+    events:
+        - http:
+              path: ${self:custom.documentPath}/fetch-qr-codes/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+closeQrCode:
+    handler: functions/close-qr-code-handler.closeQrCode
+    events:
+        - http:
+              path: ${self:custom.documentPath}/close-qr-code/{id}/{merchantId}
+              method: delete
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+GetSignedTermsAndConditionsInfo:
+    handler: functions/terms-and-conditions/get-signed-terms-and-conditions-info.getSignedTermsAndConditionsInfoHandler
+    events:
+        - http:
+              path: ${self:custom.documentPath}/terms-and-condition/get-signed-terms-and-conditions/{entity}/{entityId}
+              method: get
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+              request:
+                  path:
+                      entity: true
+                      entityId: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+UpdateDocumentType:
+    handler: functions/admin/update-document-type-handler.updateDocumentTypeHandler
+    events:
+        - http:
+              path: ${self:custom.documentPath}/update-document-type/{merchantId}/{documentId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    environment:
+        AUDIT_LOGS_QUEUE_URL:
+            'Fn::ImportValue': AuditLogsQueueFifoUrl-${self:custom.infraStage}
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}
+
+QrGenerate:
+    handler: functions/qr-generate-handler.qrGenerate
+    events:
+        - http:
+              path: ${self:custom.documentPath}/qr-generate/{merchantId}
+              method: post
+              authorizer:
+                  arn: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+              cors: true
+    layers:
+        - ${ssm:/cp/${self:custom.infraStage}/cp/HelperlibLambdaLayerQualifiedArn}
+        - ${ssm:/cp/${self:custom.infraStage}/cp/ModelslibLambdaLayerQualifiedArn}

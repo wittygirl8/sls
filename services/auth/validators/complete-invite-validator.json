@@ -1,0 +1,45 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "title": "Complete Invite schema",
+    "required": ["username", "email", "lastName", "firstName", "password", "oldPassword"],
+    "properties": {
+        "username": {
+            "type": "string",
+            "title": "Username",
+            "minLength": 1,
+            "maxLength": 250
+        },
+        "email": {
+            "type": "string",
+            "title": "Email address",
+            "minLength": 1,
+            "maxLength": 250
+        },
+        "lastName": {
+            "type": "string",
+            "title": "Last Name",
+            "minLength": 1,
+            "maxLength": 250
+        },
+        "firstName": {
+            "type": "string",
+            "title": "First Name",
+            "minLength": 1,
+            "maxLength": 250
+        },
+        "password": {
+            "type": "string",
+            "title": "Password",
+            "minLength": 8,
+            "maxLength": 250
+        },
+        "oldPassword": {
+            "type": "string",
+            "title": "Password",
+            "minLength": 8,
+            "maxLength": 250
+        }
+    }
+}

@@ -1,0 +1,44 @@
+{
+    "name": "virtual_terminal",
+    "version": "",
+    "description": "",
+    "scripts": {
+        "test": "jest tests",
+        "offline": "title Virtual Termonal Service && serverless offline --config=serverless-local.yml start",
+        "watch": "npm-watch"
+    },
+    "watch": {
+        "offline": {
+            "patterns": [
+                "functions",
+                "business-logic",
+                "../libs"
+            ]
+        }
+    },
+    "author": "",
+    "license": "",
+    "devDependencies": {
+        "npm-watch": "^0.6.0",
+        "@babel/core": "^7.10.2",
+        "@babel/preset-env": "^7.10.2",
+        "@types/jest": "^26.0.3",
+        "babel-jest": "^26.0.1",
+        "jest": "^26.0.1",
+        "serverless-aws-alias": "^1.8.0",
+        "serverless-plugin-tracing": "^2.0.0"
+    },
+    "dependencies": {
+        "aws-sdk": "^2.737.0",
+        "axios": "^0.19.2",
+        "base-64": "^1.0.0",
+        "change-case": "^4.1.1",
+        "dotenv": "^8.2.0",
+        "jspdf": "^2.0.0",
+        "moment": "^2.24.0",
+        "number-to-locale-string": "^1.2.0",
+        "query-string": "^6.11.0",
+        "underscore": "^1.9.2",
+        "utf8": "^3.0.0"
+    }
+}

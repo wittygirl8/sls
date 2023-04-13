@@ -1,0 +1,91 @@
+service: mypay-vt
+
+plugins:
+    - serverless-offline
+    - serverless-bundle
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        INFRA_STAGE: ${self:custom.infraStage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        WEB_CLIENT_URL: ${self:custom.webClientUrl}
+        MYPAY_GATEWAY_LINK: ${self:custom.mypayGatewayLink}
+        DATMAN_SES_HANDLER_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/DatmanSesHandlerApiKey}
+        GATEWAY_MESSAGING_ENDPOINT: ${ssm:/cp/${self:custom.infraStage}/cp/GatewayMessagingEndpoint}
+        DATMAN_API_ENDPOINT: ${ssm:/cp/${self:custom.infraStage}/cp/datman_api_endpoint}
+        CP_DOCS_BUCKET_NAME: ${ssm:/cp/${self:custom.stage}/cp/CPDocsBucket}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:GetParameters
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - s3:*
+          Resource:
+              - Fn::Join:
+                    - ''
+                    - - 'Fn::ImportValue': ${self:custom.infraStage}-CPDocsBucketArn
+                      - /*
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+    virtualTerminalEntityPath: ${self:custom.baseApiPath}/virtual_terminal
+    # mypayGatewayLink: https://mypay-migration.d2i8nm6rtjubg8.amplifyapp.com
+    mypayGatewayLink: https://nd-3317-show-txn-failed.d2i8nm6rtjubg8.amplifyapp.com
+    webClientUrls:
+        dev: http://localhost:3000
+    webClientUrl: ${self:custom.webClientUrls.${self:custom.infraStage}, self:custom.webClientUrls.dev}
+
+    bundle:
+        sourcemaps: true
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+
+    #Locally
+    serverless-offline:
+        httpPort: 4012
+        lambdaPort: 5012
+        printOutput: true
+        useChildProcesses: true
+
+    output:
+        file: stack-outputs/transaction-${self:custom.stage}.yml
+
+functions:
+    - ${file(functions.yml)}
+
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

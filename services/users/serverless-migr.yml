@@ -1,0 +1,94 @@
+service: mypay-users
+
+plugins:
+    - serverless-bundle
+    - serverless-plugin-tracing
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-central-1
+    tracing:
+        apiGateway: true
+        lambda: true
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-central-1
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        COGNITO_CLIENT_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolClientId}
+        INFRA_STAGE: ${self:custom.infraStage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: Allow
+          Action:
+              - cognito-idp:AdminCreateUser
+              - cognito-idp:AdminDeleteUser
+              - cognito-idp:AdminEnableUser
+              - cognito-idp:AdminDisableUser
+              - cognito-idp:ListUsers
+              - cognito-idp:AdminUpdateUserAttributes
+          Resource: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolArn}
+        - Effect: 'Allow' # xray permissions
+          Action:
+              - xray:PutTraceSegments
+              - xray:PutTelemetryRecords
+          Resource:
+              - '*'
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:GetParameters
+              - sqs:listQueues
+              - sqs:getQueueAttributes
+              - sqs:receiveMessage
+              - sqs:deleteMessage
+              - sqs:sendMessage
+          Resource: '*'
+
+package:
+    artifact: ${opt:artifact, ""}
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+
+    usersEntityPath: ${self:custom.baseApiPath}/users
+
+    bundle:
+        sourcemaps: true
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+            # only on aws
+            - ../../../layers/helper_lib/src
+            - ../../../layers/models_lib/src
+            - ../../../../layers/helper_lib/src
+            - ../../../../layers/models_lib/src
+
+functions:
+    - ${file(functions.yml)}
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

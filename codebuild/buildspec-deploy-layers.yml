@@ -1,0 +1,39 @@
+version: 0.2
+
+phases:
+    install:
+        runtime-versions:
+            nodejs: 12
+        commands:
+            - npm install -g serverless@1.61.2
+    build:
+        commands:
+            - echo ${S3_BUCKET}
+            - echo ${SERVICE_NAME_PATH}
+            - echo ${STAGE}
+            - echo ${PACKAGE_NAME}
+            - mkdir target
+            - aws s3 cp ${S3_BUCKET}/${SERVICE_NAME_PATH} ./target
+            - cd ./target
+            - unzip ${PACKAGE_NAME}.zip -d package
+            - cd ./package
+            - cd helper_lib && npm ci && cd -
+            - cd helper_lib/dist/nodejs && npm ci && cd -
+            - cd models_lib && npm ci && cd -
+            - cd models_lib/dist/nodejs && npm ci && cd -
+            - cd helper_lib && npm run compile
+            - cd ../
+            - cd models_lib && npm run compile
+            - cd ../
+            - ls -la
+            - serverless deploy --stage=${STAGE} > output.txt
+            - cat output.txt
+            - echo "     "
+            - helperlib=`grep 'helperlib:' ./output.txt | sed 's/^.\{12\}//' | tr -d '[:space:]'`
+            - echo $helperlib
+            - aws ssm delete-parameter --name /cp/${STAGE}/cp/HelperlibLambdaLayerQualifiedArn --region=${REGION}
+            - aws ssm put-parameter --name /cp/${STAGE}/cp/HelperlibLambdaLayerQualifiedArn --value "$helperlib" --type String --region=${REGION}
+            - modelslib=`grep 'modelslib:' ./output.txt | sed 's/^.\{12\}//' | tr -d '[:space:]'`
+            - echo $modelslib
+            - aws ssm delete-parameter --name /cp/${STAGE}/cp/ModelslibLambdaLayerQualifiedArn --region=${REGION}
+            - aws ssm put-parameter --name /cp/${STAGE}/cp/ModelslibLambdaLayerQualifiedArn --value "$modelslib" --type String --region=${REGION}

@@ -1,0 +1,37 @@
+{
+    "name": "users",
+    "version": "",
+    "description": "",
+    "scripts": {
+        "test": "jest tests",
+        "offline": "title Users Service && serverless offline --config=serverless-local.yml start",
+        "watch": "npm-watch"
+    },
+    "watch": {
+        "offline": {
+            "patterns": [
+                "functions",
+                "../libs"
+            ]
+        }
+    },
+    "author": "",
+    "license": "",
+    "devDependencies": {
+        "jest": "^26.1.0",
+        "serverless-aws-alias": "^1.8.0",
+        "serverless-plugin-ifelse": "^1.0.5",
+        "serverless-stack-output": "^0.2.3",
+        "@types/jest": "^26.0.3",
+        "babel-jest": "^26.0.1",
+        "@babel/core": "^7.10.2",
+        "npm-watch": "^0.6.0",
+        "@babel/preset-env": "^7.10.2",
+        "serverless-plugin-tracing": "^2.0.0"
+    },
+    "dependencies": {
+        "aws-sdk": "^2.695.0",
+        "dotenv": "^8.2.0",
+        "password-generator": "^2.3.2"
+    }
+}

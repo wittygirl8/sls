@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+    install:
+        runtime-versions:
+            nodejs: 12
+        commands:
+            - npm install -g serverless@1.61.2
+    build:
+        commands:
+            - mkdir target
+            - aws s3 cp ${S3_BUCKET}/${SERVICE_NAME_PATH} ./target
+            - cd ./target
+            - unzip -qq ${PACKAGE_NAME}.zip -d package
+            - cd ./package
+            - ls -la
+            - npm ci
+            - sls deploy --stage=${STAGE} -v
+            - serverless migrations-up --stage=${STAGE}

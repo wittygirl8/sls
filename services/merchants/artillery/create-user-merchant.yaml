@@ -1,0 +1,19 @@
+config:
+  target: 'https://y5m6rzor7g.execute-api.eu-west-1.amazonaws.com/dev/api/v1'
+  phases:
+    - duration: 60
+      arrivalRate: 20
+      rampTo: 20
+scenarios:
+  - flow:
+    - post:
+        url: "/merchants"
+        json:
+          name: "{{ $randomString() }}"
+          country : "United Kingdom"
+          resellerId: 1
+          thirdPartyCustomerId: null
+          refferalDataValue: "{{ $randomString() }}"
+          host: "host"
+        headers:
+          Authorization: "eyJraWQiOiJTeFdsYldKOHh6N0V5UjBES3J1N1dmRUx4Q1BHejlJWlZEWVwvb1hjZ0F1VT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIzNDZkMzk1NS1jOGIwLTQwOTAtYjJhNi05MjczZjMyZGUwMmIiLCJjdXN0b206YWxpYXMiOiJkZXYiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmV1LXdlc3QtMS5hbWF6b25hd3MuY29tXC9ldS13ZXN0LTFfNFFRbmwyQWdUIiwicGhvbmVfbnVtYmVyX3ZlcmlmaWVkIjp0cnVlLCJjb2duaXRvOnVzZXJuYW1lIjoiMzQ2ZDM5NTUtYzhiMC00MDkwLWIyYTYtOTI3M2YzMmRlMDJiIiwiZ2l2ZW5fbmFtZSI6IlRlc3QiLCJteVBheVVzZXJJZCI6IjE3MyIsImF1ZCI6IjU5MWtzNG90ZTA4OGQ0bXI1cW0zMW01bTVxIiwiZXZlbnRfaWQiOiIwODFhZGViMC03Yzk0LTRlMjQtOWM3Mi1mYjI0OTFiYzc0ZmMiLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTYwNTU0ODc0NywiaG9zdCI6Ind3dy5kdW1teS1nZnNhc2Qud2ViLmNvbSIsInBob25lX251bWJlciI6IiszNzM2OTk2NDI2MiIsIm1lcmNoYW50cyI6IlsyNjAsMjYxLDI2MiwzODBdIiwiZXhwIjoxNjA1NTUyMzQ3LCJjdXN0b206cmVzZWxsZXJVcmwiOiJwb3J0YWwuZGF0bWFuY3JtLmNvbSIsImlhdCI6MTYwNTU0ODc0NywiZmFtaWx5X25hbWUiOiJUZXN0IiwiZW1haWwiOiJteXBheS5vYXV0aCtkZXYwMDBAZ21haWwuY29tIn0.CvwtiXm0cIvTjNsUHG0WIn5pLZXzr_Hf-EXH-d9lv5iLbcs2NmmsX4WroLGJDnKO0stoDRlJZukjnJeR3SSWn8L35yPZXljZxuqkMOtBP2NW46zjENyjcJCpew8RJugvXTGWtFmcVlENh91u9M3YlSQqOukqT0C02fz0X5B2peIVb2TdXfBDMuEonnP3Q0eBRnBh3xnemTAAKjFv7HZw3_0ctFB_oLjq3_4_DSIMmxqVCRuvRX9bzGT3IzfFKq-E3gQ2bw4cYBmNIFb88rj_myn-4m62ePpn6vnDzmwum5hKX9pbA8S1Bs8Ff-uy93g-yZyIDbbkjjAI_vg1gg46iQ"

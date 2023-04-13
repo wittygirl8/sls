@@ -1,0 +1,90 @@
+service: mypay-merchants
+
+plugins:
+    - serverless-offline
+    - serverless-bundle
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        COGNITO_CLIENT_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolClientId}
+        INFRA_STAGE: ${self:custom.stage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        WEB_CLIENT_URL: http://localhost:3000
+        STRIPE_SK: ${ssm:/cp/${self:custom.infraStage}/cp/STRIPE_SK}
+        ADYEN_API_URL: ${ssm:/cp/${self:custom.infraStage}/cp/AdyenApiURL}
+        ADYEN_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/AdyenApiKey}
+        INCOMPLETE_ONBOARDING_MERCHANTS: ${ssm:/cp/${self:custom.infraStage}/cp/InCompleteOnboardingMerchants}
+        TIPALTI_API_DOMAIN: ${ssm:/cp/${self:custom.infraStage}/cp/TipaltiApiDomain}
+        TIPALTI_API_TOKEN: ${ssm:/cp/${self:custom.infraStage}/cp/TipaltiApiToken}
+        ADYEN_SERVICE_BASE_URL: http://localhost:4013/dev/api/v1/adyen
+        FOOD_HUB_WEB_HOOK_URL: ${ssm:/cp/${self:custom.stage}/cp/FoodHubWebHookUrl}
+        FOOD_HUB_WEB_HOOK_API_KEY: ${ssm:/cp/${self:custom.stage}/cp/FoodHubWebHookAPIKey}
+        BANK_TOKENIZATION_API_URL: ${ssm:/cp/${self:custom.infraStage}/cp/BankTokenizationApiUrl}
+        BANK_TOKENIZATION_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/BankTokenizationApiKey}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:GetParameters
+              - sqs:listQueues
+              - sqs:getQueueAttributes
+              - sqs:receiveMessage
+              - sqs:deleteMessage
+              - sqs:sendMessage
+          Resource: '*'
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+
+    merchantPath: ${self:custom.baseApiPath}/merchants
+
+    bundle:
+        sourcemaps: true
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+
+    #Locally
+    serverless-offline:
+        httpPort: 4004
+        lambdaPort: 5004
+        printOutput: true
+
+    output:
+        file: stack-outputs/customer-${self:custom.stage}.yml
+
+functions:
+    - ${file(functions.yml)}
+
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

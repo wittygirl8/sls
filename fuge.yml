@@ -1,0 +1,75 @@
+fuge_global:
+    tail: true
+    monitor: false
+    monitor_excludes:
+        - '**/node_modules/**'
+        - '**/.git/**'
+        - '*.log'
+auth_service:
+    type: process
+    path: ./backend/services/auth
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+customers_service:
+    type: process
+    path: ./backend/services/customers
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+users_service:
+    type: process
+    path: ./backend/services/users
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+transactions_service:
+    type: process
+    path: ./backend/services/transactions
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+settings_service:
+    type: process
+    path: ./backend/services/settings
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+merchants_service:
+    type: process
+    path: ./backend/services/merchants
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+payments_service:
+    type: process
+    path: ./backend/services/payments
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+virtual_terminal_service:
+    type: process
+    path: ./backend/services/virtual_terminal
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+documents_service:
+    type: process
+    path: ./backend/services/documents
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+taxonomies_service:
+    type: process
+    path: ./backend/services/taxonomies
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+notifications_service:
+    type: process
+    path: ./backend/services/notifications
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+admin_service:
+    type: process
+    path: ./backend/services/admin-merchants
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+adyen_service:
+    type: process
+    path: ./backend/services/adyen
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+reseller_service:
+    type: process
+    path: ./backend/services/reseller
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+bifrost_service:
+    type: process
+    path: ./backend/services/bifrost
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+dna_service:
+    type: process
+    path: ./backend/services/dna
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'
+push_notifications_service:
+    type: process
+    path: ./backend/services/push-notifications
+    run: 'serverless offline --aws-profile dev-aws --config=serverless-local.yml start'

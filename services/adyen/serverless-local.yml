@@ -1,0 +1,82 @@
+service: mypay-adyen
+
+plugins:
+    - serverless-offline
+    - serverless-bundle
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-west-1
+    aliasStage:
+        loggingLevel: 'ERROR'
+        dataTraceEnabled: true
+    environment:
+        REGION: eu-west-1
+        COGNITO_USER_POOL_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolId}
+        COGNITO_CLIENT_ID: ${ssm:/cp/${self:custom.infraStage}/cp/CognitoUserPoolClientId}
+        INFRA_STAGE: ${self:custom.stage}
+        DB_RESOURCE_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/DbClusterArn}
+        SECRET_ARN: ${ssm:/cp/${self:custom.infraStage}/cp/SecretManagerArn}
+        ADYEN_API_URL: ${ssm:/cp/${self:custom.infraStage}/cp/AdyenApiURL}
+        ADYEN_API_KEY: ${ssm:/cp/${self:custom.infraStage}/cp/AdyenApiKey}
+        ACCESS_KEY_ID: ${ssm:/cp/${self:custom.infraStage}/cp/accessKey}
+        SECRET_ACCESS_KEY: ${ssm:/aws/reference/secretsmanager//cp/${self:custom.infraStage}/cp/secretAccessKey~true}
+        BUCKET_NAME: ${ssm:/cp/${self:custom.stage}/cp/BucketUpload}
+        CRYPTO_SECRETE: ${ssm:/cp/${self:custom.stage}/cp/CryptoSecrete}
+        FOOD_HUB_WEB_HOOK_URL: ${ssm:/cp/${self:custom.stage}/cp/FoodHubWebHookUrl}
+        FOOD_HUB_WEB_HOOK_API_KEY: ${ssm:/cp/${self:custom.stage}/cp/FoodHubWebHookAPIKey}
+        T2S_API_KEY: ${ssm:/cp/${self:custom.stage}/cp/T2sAPIKey}
+
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - rds-data:ExecuteStatement
+              - rds-data:BatchExecuteStatement
+              - rds-data:BeginTransaction
+              - rds-data:CommitTransaction
+              - rds-data:RollbackTransaction
+          Resource: '*'
+        - Effect: Allow
+          Action:
+              - secretsmanager:GetSecretValue
+          Resource:
+              'Fn::ImportValue': SecretManagerArn
+        - Effect: Allow
+          Action:
+              - ses:*
+              - ssm:*
+              - events:*
+          Resource: '*'
+
+custom:
+    baseApiPath: api/v1
+    defaultStage: dev
+    stage: ${opt:stage, self:custom.defaultStage}
+    infraStage: ${opt:infraStage, self:custom.defaultStage}
+    adyenEntityPath: ${self:custom.baseApiPath}/adyen
+
+    bundle:
+        sourcemaps: true
+        externals:
+            - mypay-helpers
+            - models
+        linting: false #Ignore for compilation
+        ignorePackages:
+            - pg-hstore
+
+    #Locally
+    serverless-offline:
+        httpPort: 4013
+        lambdaPort: 5013
+        printOutput: true
+
+    # output:
+    #     file: stack-outputs/customer-${self:provider.alias}.yml
+
+functions:
+    - ${file(functions.yml)}
+
+resources:
+    # API Gateway Errors
+    - ${file(api-gateway-errors.yml)}

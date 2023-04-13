@@ -1,0 +1,35 @@
+{
+    "name": "notifications",
+    "version": "",
+    "description": "",
+    "scripts": {
+        "test": "jest tests",
+        "offline": "title Notifications Service && serverless offline --config=serverless-local.yml start",
+        "watch": "npm-watch"
+    },
+    "watch": {
+        "offline": {
+            "patterns": [
+                "functions",
+                "business-logic",
+                "../libs"
+            ]
+        }
+    },
+    "author": "",
+    "license": "",
+    "devDependencies": {
+        "jest": "^26.0.1",
+        "@babel/core": "^7.10.2",
+        "@babel/preset-env": "^7.10.2",
+        "babel-jest": "^26.0.1",
+        "serverless-aws-alias": "^1.8.0",
+        "npm-watch": "^0.6.0",
+        "@types/jest": "^26.0.3",
+        "aws-sdk": "^2.737.0",
+        "serverless-plugin-tracing": "^2.0.0"
+    },
+    "dependencies": {
+        "lodash": "^4.17.21"
+    }
+}
